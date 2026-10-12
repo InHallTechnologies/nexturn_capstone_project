@@ -1,8 +1,8 @@
 from flask import Blueprint, request
-from backend.database import users_collection
+from backend.database1 import SessionLocal
 from backend.utils.jwt_handler import tokenizing
 from backend.utils.password import hash_password,verify_password
-from backend.models.user import create_user_document
+from backend.models.user import User
 from backend.schemas.user import validate_register,validate_login
 from backend.utils.middleware import token_required
 
@@ -15,19 +15,33 @@ def handle_register():
     
     if not isinstance(result, dict):
         return result
+    db=SessionLocal()
     
-    if users_collection.find_one({"email": result["email"]}):
-        return {"error": "A user with this email already exists"}, 400
+    try:
+        existing_user = db.query(User).filter_by(
+            email=result["email"]
+        ).first()
+
+        if existing_user:
+            return {"error": "A user with this email already exists"}, 409
     
-    hashed_password=hash_password(result["password"])
+        hashed_password=hash_password(result["password"])
     
-    user_data=create_user_document(result["name"],result["email"],hashed_password,result["role"])
+        user_data = User(name=result["name"],email=result["email"],password=hashed_password,role=result["role"])
     
-    users_collection.insert_one(user_data)
+        db.add(user_data)
+        db.commit()
+        db.close()
     
-    return {
-        "message": f"user -- {result['name']} registered successfully"
-            }, 201
+        return {
+            "message": f"user -- {result['name']} registered successfully"
+                }, 201
+    except Exception:
+        db.rollback()
+        raise
+    
+    finally:
+        db.close()
 
 @auth_bp.post("/api/auth/login")
 def handle_login():
@@ -35,31 +49,39 @@ def handle_login():
     result=validate_login(body)
     if not isinstance(result, dict):
         return result
+    db=SessionLocal()
+    try:
+        user=db.query(User).filter_by(email=result["email"]).first()
     
-    user=users_collection.find_one({"email":result["email"]})
+        if not user or not verify_password(user.password,result["password"]):
+            return {"error": "Invalid email or password"}, 401
     
-    if not user or not verify_password(user["password"],result["password"]):
-        return {"error": "Invalid email or password"}, 401
+        token=tokenizing(user.email)
     
-    token=tokenizing(user["email"])
+        return {
+            "message": f"Welcome back, {user.name}!",
+            "token":token
     
-    return {
-        "message": f"Welcome back, {user['name']}!",
-        "token":token
-    
-    }, 200
+        }, 200
+    finally:
+        db.close()
+        
     
 @auth_bp.get("/api/auth/me")
 @token_required
 def get_current_user(current_user_email):
-    user = users_collection.find_one({"email": current_user_email})
+    db=SessionLocal()
+    try:
+        user=db.query(User).filter_by(email=current_user_email).first()
 
-    if not user:
-        return {"error": "User not found"}, 404
+        if not user:
+            return {"error": "User not found"}, 404
 
-    return {
-        "name": user["name"],
-        "email": user["email"],
-        "role": user["role"]
-    }, 200
-
+        return {
+            "name": user.name,
+            "email": user.email,
+            "role": user.role
+        }, 200
+    
+    finally:
+        db.close()
