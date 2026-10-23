@@ -1,18 +1,43 @@
+
 from datetime import datetime, timezone
 
+from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
 
-def create_product_document(
-    sku, name, category_id, unit,
-    cost_price, selling_price, reorder_level
-):
-    return {
-        "sku": sku.strip().upper(),
-        "name": name.strip(),
-        "category_id": category_id,
-        "unit": unit,
-        "cost_price": float(cost_price),
-        "selling_price": float(selling_price),
-        "reorder_level": int(reorder_level),
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc)
-    }
+from backend.database1 import Base
+
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    sku = Column(String(50), unique=True, nullable=False)
+
+    name = Column(String(150), nullable=False)
+
+    category_id = Column(
+        Integer,
+        ForeignKey("categories.id"),
+        nullable=False,
+    )
+
+    unit = Column(String(30), nullable=False)
+
+    cost_price = Column(Numeric(12, 2), nullable=False)
+
+    selling_price = Column(Numeric(12, 2), nullable=False)
+
+    reorder_level = Column(Integer, default=0, nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )

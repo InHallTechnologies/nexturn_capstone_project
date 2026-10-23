@@ -1,28 +1,44 @@
+
 from datetime import datetime, timezone
+
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+
+from backend.database1 import Base
 
 
 VALID_REASONS = {
     "purchase",
     "sale",
     "adjustment",
-    "return"
+    "return",
 }
 
 
-def create_stock_movement_document(
-    product_id, quantity, reason, reference_id, created_by
-):
-    if reason not in VALID_REASONS:
-        raise ValueError("Invalid stock movement reason")
+class StockMovement(Base):
+    __tablename__ = "stock_movements"
 
-    if quantity == 0:
-        raise ValueError("Quantity cannot be zero")
+    id = Column(Integer, primary_key=True, index=True)
 
-    return {
-        "product_id": product_id,
-        "quantity": int(quantity),
-        "reason": reason,
-        "reference_id": reference_id,
-        "created_by": created_by,
-        "created_at": datetime.now(timezone.utc)
-    }
+    product_id = Column(
+        Integer,
+        ForeignKey("products.id"),
+        nullable=False,
+    )
+
+    quantity = Column(Integer, nullable=False)
+
+    reason = Column(String(20), nullable=False)
+
+    reference_id = Column(Integer, nullable=True)
+
+    created_by = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )

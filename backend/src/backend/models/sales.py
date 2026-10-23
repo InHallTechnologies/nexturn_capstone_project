@@ -1,29 +1,28 @@
+
 from datetime import datetime, timezone
 
+from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
 
-def create_sale_document(bill_number, created_by, total_amount):
-    return {
-        "bill_number": bill_number,
-        "created_by": created_by,
-        "total_amount": float(total_amount),
-        "created_at": datetime.now(timezone.utc)
-    }
+from backend.database1 import Base
 
 
-def create_sale_item_document(
-    sale_id, product_id, quantity, price_at_sale
-):
-    quantity = int(quantity)
+class Sale(Base):
+    __tablename__ = "sales"
 
-    if quantity <= 0:
-        raise ValueError("Sale quantity must be positive")
+    id = Column(Integer, primary_key=True, index=True)
 
-    price_at_sale = float(price_at_sale)
+    bill_number = Column(String(50), unique=True, nullable=False)
 
-    return {
-        "sale_id": sale_id,
-        "product_id": product_id,
-        "quantity": quantity,
-        "price_at_sale": price_at_sale,
-        "subtotal": quantity * price_at_sale
-    }
+    created_by = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+    )
+
+    total_amount = Column(Numeric(12, 2), nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )

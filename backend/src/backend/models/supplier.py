@@ -1,15 +1,25 @@
 from datetime import datetime, timezone
 
+from sqlalchemy import Column, Integer, String, DateTime
 
-def create_supplier_document(
-    name, contact="", email="", address="", payment_terms=""
-):
-    return {
-        "name": name.strip(),
-        "contact": contact.strip(),
-        "email": email.strip().lower(),
-        "address": address.strip(),
-        "payment_terms": payment_terms.strip(),
-        "created_at": datetime.now(timezone.utc),
-        "updated_at": datetime.now(timezone.utc)
-    }
+from backend.database1 import Base
+
+
+class Supplier(Base):
+    __tablename__ = "suppliers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(150), nullable=False)
+    contact = Column(String(30), default="", nullable=False)
+    email = Column(String(255), default="", nullable=False)
+    address = Column(String(500), default="", nullable=False)
+    payment_terms = Column(String(100), default="", nullable=False)
+
+    created_at = Column(DateTime(timezone=True),default=lambda: datetime.now(timezone.utc),nullable=False,)
+    
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False,
+    )
