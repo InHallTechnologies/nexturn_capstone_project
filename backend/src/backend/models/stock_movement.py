@@ -1,9 +1,9 @@
 
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import CheckConstraint, Column, Integer, String, DateTime, ForeignKey
 
-from backend.database1 import Base
+from backend.database import Base
 
 
 VALID_REASONS = {
@@ -16,6 +16,20 @@ VALID_REASONS = {
 
 class StockMovement(Base):
     __tablename__ = "stock_movements"
+    __table_args__ = (
+        CheckConstraint("quantity != 0", name="ck_stock_movements_nonzero"),
+        CheckConstraint(
+            "reason IN ('purchase', 'sale', 'adjustment', 'return')",
+            name="ck_stock_movements_reason",
+        ),
+        CheckConstraint(
+            "(reason = 'purchase' AND quantity > 0) OR "
+            "(reason = 'sale' AND quantity < 0) OR "
+            "(reason = 'return' AND quantity > 0) OR "
+            "reason = 'adjustment'",
+            name="ck_stock_movements_direction",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
 
@@ -28,6 +42,8 @@ class StockMovement(Base):
     quantity = Column(Integer, nullable=False)
 
     reason = Column(String(20), nullable=False)
+
+    notes = Column(String(500), nullable=True)
 
     reference_id = Column(Integer, nullable=True)
 

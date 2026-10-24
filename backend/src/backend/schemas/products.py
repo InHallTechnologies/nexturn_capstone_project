@@ -2,6 +2,21 @@
 from decimal import Decimal, InvalidOperation
 
 
+def _parse_integer(value, field_name):
+    if isinstance(value, bool):
+        raise ValueError(f"{field_name} must be an integer")
+
+    try:
+        parsed_value = Decimal(str(value))
+    except (ValueError, TypeError, InvalidOperation):
+        raise ValueError(f"{field_name} must be an integer")
+
+    if not parsed_value.is_finite() or parsed_value != parsed_value.to_integral_value():
+        raise ValueError(f"{field_name} must be an integer")
+
+    return int(parsed_value)
+
+
 def validate_product(data):
     if not isinstance(data, dict):
         raise ValueError("Request body must be a JSON object")
@@ -43,8 +58,8 @@ def validate_product(data):
         raise ValueError("Unit cannot exceed 30 characters")
 
     try:
-        category_id = int(category_id)
-        reorder_level = int(reorder_level)
+        category_id = _parse_integer(category_id, "Category ID")
+        reorder_level = _parse_integer(reorder_level, "Reorder level")
         cost_price = Decimal(str(cost_price))
         selling_price = Decimal(str(selling_price))
     except (ValueError, TypeError, InvalidOperation):

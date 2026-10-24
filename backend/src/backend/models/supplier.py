@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy import Column, Integer, String, DateTime
 
-from backend.database1 import Base
+from backend.database import Base
 
 
 class Supplier(Base):

@@ -1,26 +1,36 @@
 import jwt
-from datetime import timedelta,datetime,timezone
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import os
+from uuid import uuid4
 
 load_dotenv()
 
 SECRET_KEY=os.getenv("SECRET_KEY")
 
-def tokenizing(email):
-    payload={
-        "email":email,
-        "exp":datetime.now(timezone.utc)+timedelta(hours=1)
+def tokenizing(email, role, token_type="access"):
+    lifetime = timedelta(hours=1) if token_type == "access" else timedelta(days=7)
+    payload = {
+        "email": email,
+        "role": role,
+        "type": token_type,
+        "jti": str(uuid4()),
+        "iat": datetime.now(timezone.utc),
+        "exp": datetime.now(timezone.utc) + lifetime,
     }
-    
-    token=jwt.encode(payload,SECRET_KEY,algorithm="HS256")
-    
+
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     return token
+
+
+def decode_token(token):
+    return jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+
 
 def verifying_token(token):
     try:
-        payload = jwt.decode(token,SECRET_KEY,algorithms=["HS256"])
-        email=payload["email"]
+        payload = decode_token(token)
+        email = payload["email"]
         return email
 
     except (jwt.InvalidTokenError, KeyError):

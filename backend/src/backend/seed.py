@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from backend.database1 import SessionLocal
+from backend.database import SessionLocal
 from backend.models.user import User
 from backend.utils.password import hash_password
 

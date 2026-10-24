@@ -1,12 +1,27 @@
 
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey
-from backend.database1 import Base
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    Integer,
+    String,
+    Date,
+    DateTime,
+    ForeignKey,
+)
+from backend.database import Base
 
 
 class PurchaseOrder(Base):
     __tablename__ = "purchase_orders"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('draft', 'approved', 'partially_received', "
+            "'received', 'cancelled')",
+            name="ck_purchase_orders_status",
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
 

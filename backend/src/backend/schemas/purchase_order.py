@@ -1,10 +1,10 @@
 
 from datetime import date
+from decimal import Decimal, InvalidOperation
 
 
 VALID_STATUSES = {
     "draft",
-    "pending",
     "approved",
     "partially_received",
     "received",
@@ -25,9 +25,17 @@ def validate_purchase_order(data):
         raise ValueError("Supplier ID must be a positive integer")
 
     try:
-        supplier_id = int(supplier_id)
-    except (ValueError, TypeError):
+        parsed_supplier_id = Decimal(str(supplier_id))
+    except (ValueError, TypeError, InvalidOperation):
         raise ValueError("Supplier ID must be a positive integer")
+
+    if (
+        not parsed_supplier_id.is_finite()
+        or parsed_supplier_id != parsed_supplier_id.to_integral_value()
+    ):
+        raise ValueError("Supplier ID must be a positive integer")
+
+    supplier_id = int(parsed_supplier_id)
 
     if supplier_id <= 0:
         raise ValueError("Supplier ID must be a positive integer")
@@ -53,6 +61,8 @@ def validate_purchase_order(data):
         try:
             expected_date = date.fromisoformat(expected_date)
         except ValueError:
+            raise ValueError("Invalid expected date. Use YYYY-MM-DD format")
+        if expected_date.isoformat() != data.get("expected_date"):
             raise ValueError("Invalid expected date. Use YYYY-MM-DD format")
 
     return {

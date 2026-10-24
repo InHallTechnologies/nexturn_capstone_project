@@ -1,13 +1,26 @@
 
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    Integer,
+    String,
+    Numeric,
+    DateTime,
+    ForeignKey,
+)
 
-from backend.database1 import Base
+from backend.database import Base
 
 
 class Product(Base):
     __tablename__ = "products"
+    __table_args__ = (
+        CheckConstraint("cost_price >= 0", name="ck_products_cost_price"),
+        CheckConstraint("selling_price >= 0", name="ck_products_selling_price"),
+        CheckConstraint("reorder_level >= 0", name="ck_products_reorder_level"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
 

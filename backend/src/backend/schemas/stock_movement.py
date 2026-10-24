@@ -1,4 +1,7 @@
 
+from decimal import Decimal, InvalidOperation
+
+
 VALID_REASONS = {
     "purchase",
     "sale",
@@ -20,22 +23,34 @@ def validate_stock_movement(data):
         raise ValueError("Product ID must be a positive integer")
 
     try:
-        product_id = int(product_id)
-    except (ValueError, TypeError):
+        parsed_product_id = Decimal(str(product_id))
+    except (ValueError, TypeError, InvalidOperation):
         raise ValueError("Product ID must be a positive integer")
 
-    if product_id <= 0:
+    if (
+        not parsed_product_id.is_finite()
+        or parsed_product_id != parsed_product_id.to_integral_value()
+        or parsed_product_id <= 0
+    ):
         raise ValueError("Product ID must be a positive integer")
+    product_id = int(parsed_product_id)
 
     # Validate quantity
     if isinstance(quantity, bool):
         raise ValueError("Quantity must be a non-zero integer")
 
     try:
-        quantity = int(quantity)
-    except (ValueError, TypeError):
+        parsed_quantity = Decimal(str(quantity))
+    except (ValueError, TypeError, InvalidOperation):
         raise ValueError("Quantity must be a non-zero integer")
 
+    if (
+        not parsed_quantity.is_finite()
+        or parsed_quantity != parsed_quantity.to_integral_value()
+    ):
+        raise ValueError("Quantity must be a non-zero integer")
+
+    quantity = int(parsed_quantity)
     if quantity == 0:
         raise ValueError("Quantity cannot be zero")
 
