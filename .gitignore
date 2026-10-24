@@ -1,5 +1,49 @@
+# Environment files and local secrets
 .env
+.env.*
+!.env.example
+
+# Python environments and bytecode
 .venv/
 venv/
+env/
+ENV/
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Python packaging and build output
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Test, coverage, and type-checker output
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# JavaScript dependencies and build output
+node_modules/
+
+# Local tool and editor settings
+.uv/
+.idea/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Operating-system files
+.DS_Store
+Thumbs.db
