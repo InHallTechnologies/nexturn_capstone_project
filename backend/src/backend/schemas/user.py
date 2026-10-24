@@ -19,9 +19,6 @@ def validate_register(data):
     if len(password) < 8:
         return {"error": "Password must be at least 8 characters"}, 400
 
-    if len(password.encode("utf-8")) > 72:
-        return {"error": "Password cannot exceed 72 UTF-8 bytes"}, 400
-
     return {
         "name": name.strip(),
         "email": email,

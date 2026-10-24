@@ -22,17 +22,16 @@ def test_registration_always_assigns_staff_role():
     assert result["role"] == "Staff"
 
 
-def test_registration_rejects_password_over_bcrypt_byte_limit():
+def test_registration_accepts_password_over_72_bytes():
     result = validate_register(
         {
             "name": "Test",
             "email": "test@example.test",
-            "password": "a" * 73,
+            "password": "a" * 100,
         }
     )
 
-    assert isinstance(result, tuple)
-    assert result[1] == 400
+    assert result["password"] == "a" * 100
 
 
 def test_product_schema_parses_valid_prices_and_ids():

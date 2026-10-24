@@ -6,7 +6,7 @@ from backend.models.stock_movement import StockMovement
 from backend.models.supplier import Supplier
 from backend.models.user import User
 from backend.utils.jwt_handler import tokenizing
-from backend.utils.password import is_bcrypt_hash
+from backend.utils.password import verify_password
 
 
 def api_request(api, method, path, role=None, json=None, token=None):
@@ -36,7 +36,8 @@ def test_register_creates_staff_and_hashes_password(api):
     with api["sessions"]() as db:
         user = db.query(User).filter_by(email="new@example.test").one()
         assert user.role == "Staff"
-        assert is_bcrypt_hash(user.password)
+        assert user.password.startswith("scrypt:")
+        assert verify_password(user.password, "Password123")
         assert user.password != "Password123"
 
 

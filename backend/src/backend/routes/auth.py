@@ -5,7 +5,7 @@ from flask import Blueprint, request
 from sqlalchemy.exc import IntegrityError
 from backend.database import SessionLocal
 from backend.utils.jwt_handler import decode_token, tokenizing
-from backend.utils.password import hash_password, is_bcrypt_hash, verify_password
+from backend.utils.password import hash_password, verify_password
 from backend.models.user import User
 from backend.models.token_blocklist import TokenBlocklist
 from backend.schemas.user import validate_register,validate_login
@@ -60,13 +60,6 @@ def handle_login():
         if not user or not verify_password(user.password,result["password"]):
             return {"error": "Invalid email or password"}, 401
 
-        if (
-            not is_bcrypt_hash(user.password)
-            and len(result["password"].encode("utf-8")) <= 72
-        ):
-            user.password = hash_password(result["password"])
-            db.commit()
-    
         token = tokenizing(user.email, user.role)
         refresh_token = tokenizing(user.email, user.role, "refresh")
     
