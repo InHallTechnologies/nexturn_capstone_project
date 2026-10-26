@@ -1,13 +1,13 @@
 # Environment variables and secrets
 .env
 .env.*
+!.env.example
 
 # Python virtual environments
 .venv/
 venv/
 
-
-# Python generated files
+# Python cache
 __pycache__/
 *.py[cod]
 
