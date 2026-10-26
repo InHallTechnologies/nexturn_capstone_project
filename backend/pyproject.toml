@@ -1,5 +1,5 @@
 [project]
-name = "northstar-api"
+name = "byt-api"
 version = "1.0.0"
 description = "Freelance workspace API backed by MongoDB"
 requires-python = ">=3.12"
