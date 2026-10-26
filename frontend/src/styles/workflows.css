@@ -1,0 +1,186 @@
+.builder-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 20px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 22px;
+}
+
+.step > span {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border-radius: 10px;
+  background: var(--violet-soft);
+  color: var(--violet-dark);
+  font: 11px "DM Mono";
+}
+
+.step h2 {
+  margin: 6px 0 0;
+  font: 700 20px "Manrope";
+}
+
+.step em {
+  margin-left: auto;
+  color: var(--violet);
+  font: 11px "DM Mono";
+  font-style: normal;
+}
+
+.builder-layout select,
+.invoice-summary input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  background: #fcfcfe;
+}
+
+.builder-divider {
+  height: 1px;
+  margin: 28px 0;
+  border-top: 1px dashed var(--line);
+}
+
+.work-list {
+  display: grid;
+}
+
+.work-row {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 0;
+  border-top: 1px solid #f0f0f6;
+  cursor: pointer;
+}
+
+.work-row input {
+  accent-color: var(--violet);
+}
+
+.work-row strong,
+.work-row small {
+  display: block;
+}
+
+.work-row strong {
+  font-size: 12px;
+}
+
+.work-row small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.work-row > b {
+  font-size: 12px;
+}
+
+.invoice-summary {
+  align-self: start;
+}
+
+.invoice-summary h2 {
+  margin: 8px 0;
+  font: 700 23px "Manrope";
+}
+
+.invoice-summary > p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.summary-row b {
+  color: var(--ink);
+}
+
+.invoice-summary label {
+  display: grid;
+  gap: 7px;
+  margin: 19px 0;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.summary-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 21px 0;
+  font-size: 12px;
+}
+
+.summary-total strong {
+  font: 700 23px "Manrope";
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.review-card h2 {
+  margin: 21px 0 10px;
+  font: 700 22px "Manrope";
+}
+
+.review-card p {
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.review-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 22px;
+}
+
+.review-feedback {
+  margin-top: 16px;
+  padding: 13px;
+  border-radius: 10px;
+  background: var(--yellow-soft);
+  color: #9a671e;
+  font-size: 11px;
+}
+
+.muted-copy {
+  color: var(--muted) !important;
+}
+
+@media (max-width: 800px) {
+  .builder-layout,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.status-pair {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
