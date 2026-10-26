@@ -1,5 +1,7 @@
-import { FoodImage, Icon, money } from "./shared";
 import { Depth, Reveal } from "./Motion";
+
+
+import { FoodImage, Icon, money } from "./shared";
 
 export default function FoodCard({
   food,
