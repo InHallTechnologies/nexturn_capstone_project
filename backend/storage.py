@@ -31,7 +31,6 @@ def insert(name, document):
     collection(name).insert_one(saved)
     return saved
 def identifier_values(identifier):
-    """Support legacy numeric ids and current string ids during migration."""
     values = [str(identifier)]
     if isinstance(identifier, int) or (isinstance(identifier, str) and identifier.isdigit()):
         numeric = int(identifier)
