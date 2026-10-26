@@ -1,15 +1,17 @@
 """Short-lived access JWTs and rotating, revocable HttpOnly refresh sessions."""
-import hashlib
-import secrets
-from datetime import timedelta
-from functools import wraps
-import jwt
+
 from flask import Blueprint, abort, current_app, g, request
 from pymongo import ReturnDocument
 from werkzeug.exceptions import Unauthorized
 from werkzeug.security import generate_password_hash, check_password_hash
 from common import body, email, now, oid, ok, text, user_view
 from db import get_db
+import hashlib
+import secrets
+from datetime import timedelta
+from functools import wraps
+import jwt
+
 
 bp = Blueprint('auth', __name__)
 COOKIE = 'kitchen_refresh'
