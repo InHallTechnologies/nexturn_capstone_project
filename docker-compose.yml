@@ -1,0 +1,42 @@
+services:
+  mongo:
+    image: mongo:7.0
+    ports: ["27017:27017"]
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-freelance_tracker}
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand(\"ping\").ok' | grep 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks: [tracker]
+
+  api:
+    build: ./backend
+    ports: ["5000:5000"]
+    environment:
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017}
+      MONGO_DB: ${MONGO_DB:-freelance_tracker}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?JWT_SECRET_KEY must be set in .env}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
+    depends_on:
+      mongo: {condition: service_healthy}
+    command: python app.py
+    networks: [tracker]
+
+  web:
+    build: ./frontend
+    ports: ["5173:5173"]
+    environment:
+      VITE_API_PROXY: http://api:5000
+    depends_on: [api]
+    networks: [tracker]
+
+networks:
+  tracker:
+    driver: bridge
+
+volumes:
+  mongo_data:
