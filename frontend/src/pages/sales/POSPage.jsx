@@ -9,6 +9,7 @@ import {
   Printer,
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 import { productsApi } from '../../api/products';
 import { categoriesApi } from '../../api/categories';
 import { salesApi } from '../../api/sales';
@@ -16,12 +17,16 @@ import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { Modal } from '../../components/common/Modal';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
+import { formatCurrency } from '../../utils/currency';
 
 export const POSPage = () => {
   const { showSuccess, showError } = useToast();
+  const { isOwner, isManager } = useAuth();
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [productError, setProductError] = useState('');
+  const [categoryError, setCategoryError] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [search, setSearch] = useState('');
   const [loadingProducts, setLoadingProducts] = useState(true);
@@ -37,6 +42,7 @@ export const POSPage = () => {
 
   const loadProducts = useCallback(async () => {
     setLoadingProducts(true);
+    setProductError('');
     try {
       const res = await productsApi.listProducts({
         per_page: 100,
@@ -46,8 +52,10 @@ export const POSPage = () => {
         sort_order: 'asc',
       });
       setProducts(res.items || []);
-    } catch {
-      // Suppress
+    } catch (error) {
+      setProductError(
+        error.response?.data?.error || 'Unable to load products. Please try again.'
+      );
     } finally {
       setLoadingProducts(false);
     }
@@ -57,18 +65,23 @@ export const POSPage = () => {
     loadProducts();
   }, [loadProducts]);
 
-  // Load categories if possible
+  const loadCategories = useCallback(async () => {
+    if (!isOwner && !isManager) return;
+
+    setCategoryError('');
+    try {
+      const res = await categoriesApi.listCategories({ per_page: 100 });
+      setCategories(res.items || []);
+    } catch (error) {
+      setCategoryError(
+        error.response?.data?.error || 'Unable to load categories. Product search is still available.'
+      );
+    }
+  }, [isOwner, isManager]);
+
   useEffect(() => {
-    const fetchCats = async () => {
-      try {
-        const res = await categoriesApi.listCategories({ per_page: 100 });
-        setCategories(res.items || []);
-      } catch {
-        // Staff might not have permission; ignore
-      }
-    };
-    fetchCats();
-  }, []);
+    loadCategories();
+  }, [loadCategories]);
 
   const handleAddToCart = (product) => {
     setSaleError('');
@@ -192,6 +205,8 @@ export const POSPage = () => {
       </div>
 
       {saleError && <ErrorAlert message={saleError} />}
+      {productError && <ErrorAlert message={productError} onRetry={loadProducts} />}
+      {categoryError && <ErrorAlert message={categoryError} onRetry={loadCategories} />}
 
       <div className="pos-container">
         {/* Left: Products Browser Panel */}
@@ -281,7 +296,7 @@ export const POSPage = () => {
 
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem', paddingTop: '0.5rem', borderTop: '1px solid var(--border-light)' }}>
                       <span style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--primary-600)' }}>
-                        ${Number(product.selling_price).toFixed(2)}
+                        {formatCurrency(product.selling_price)}
                       </span>
                       {inCart && (
                         <Badge variant="info">
@@ -342,10 +357,10 @@ export const POSPage = () => {
                         {product.name}
                       </div>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        ${Number(product.selling_price).toFixed(2)} / {product.unit}
+                        {formatCurrency(product.selling_price)} / {product.unit}
                       </div>
                       <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--text-main)', marginTop: '2px' }}>
-                        ${subtotal.toFixed(2)}
+                        {formatCurrency(subtotal)}
                       </div>
                     </div>
 
@@ -469,7 +484,7 @@ export const POSPage = () => {
             >
               <span style={{ fontSize: '1rem', fontWeight: 600 }}>Bill Total</span>
               <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--primary-600)' }}>
-                ${calculateTotal().toFixed(2)}
+                {formatCurrency(calculateTotal())}
               </span>
             </div>
 
@@ -482,7 +497,7 @@ export const POSPage = () => {
               icon={CheckCircle2}
               style={{ width: '100%', marginTop: '0.25rem' }}
             >
-              Complete Sale (${calculateTotal().toFixed(2)})
+              Complete Sale ({formatCurrency(calculateTotal())})
             </Button>
           </div>
         </div>
@@ -525,7 +540,7 @@ export const POSPage = () => {
             >
               <CheckCircle2 size={36} style={{ color: 'var(--success-solid)', margin: '0 auto 0.5rem' }} />
               <div style={{ fontWeight: 700, fontSize: '1.25rem', color: 'var(--success-text)' }}>
-                ${Number(completedSale.total_amount).toFixed(2)} Paid
+                {formatCurrency(completedSale.total_amount)} Paid
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)', marginTop: '0.25rem' }}>
                 Invoice #{completedSale.bill_number}
@@ -558,10 +573,10 @@ export const POSPage = () => {
                         </td>
                         <td style={{ padding: '0.5rem 0', textAlign: 'center' }}>{item.quantity}</td>
                         <td style={{ padding: '0.5rem 0', textAlign: 'right', color: 'var(--text-secondary)' }}>
-                          ${Number(item.price_at_sale).toFixed(2)}
+                          {formatCurrency(item.price_at_sale)}
                         </td>
                         <td style={{ padding: '0.5rem 0', textAlign: 'right', fontWeight: 600 }}>
-                          ${Number(item.subtotal).toFixed(2)}
+                          {formatCurrency(item.subtotal)}
                         </td>
                       </tr>
                     );

@@ -40,7 +40,7 @@ export const AccessDeniedPage = ({ requiredRoles = [] }) => {
         Access Restricted
       </h2>
       <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', maxWidth: '440px', marginBottom: '0.5rem' }}>
-        You do not have permission to access this section of StockPilot.
+        You do not have permission to access this section of Retail Inventory.
       </p>
       <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', maxWidth: '440px', marginBottom: '1.75rem' }}>
         Your account role is <strong>{user?.role || 'Unknown'}</strong>.

@@ -1,16 +1,26 @@
-# React + Vite
+# Retail Inventory frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React application built with Vite and React Router. API calls use the shared
+Axios client in `src/api/client.js`; Vite proxies `/api` to
+`http://127.0.0.1:8000` during development.
 
-Currently, two official plugins are available:
+## Run and check
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```powershell
+npm ci
+npm run dev
+npm run lint
+npm run build
+```
 
-## React Compiler
+The API enforces permissions; protected routes and role-aware navigation
+provide the corresponding frontend experience. Public registration sends only
+name, email, and password; the backend assigns the Staff role.
+All product prices, purchase costs, sales totals, and valuation displays use
+Indian rupees (INR) with Indian number grouping.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Production container
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The Docker build creates a static Vite bundle and serves it through Nginx.
+Nginx forwards `/api/` requests to the `api` Compose service and falls back to
+`index.html` for client-side routes.

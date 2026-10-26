@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -13,26 +13,28 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  Zap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { Badge } from '../common/Badge';
-import { Modal } from '../common/Modal';
-import { Button } from '../common/Button';
 
 export const Sidebar = ({
   collapsed = false,
   onToggleCollapse,
-  mobileOpen = false,
-  onCloseMobile,
 }) => {
   const { user, logout, isOwner, isManager } = useAuth();
+  const { showError } = useToast();
   const navigate = useNavigate();
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
+    try {
+      await logout();
+    } catch (error) {
+      showError(
+        error.response?.data?.error ||
+          'The session could not be revoked on the server. Local credentials were cleared.'
+      );
+    }
     navigate('/login');
   };
 
@@ -84,15 +86,14 @@ export const Sidebar = ({
 
   return (
     <>
-      {mobileOpen && <div className="mobile-nav-backdrop" onClick={onCloseMobile} />}
-      <aside className={`sidebar ${collapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
+      <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         {/* Brand Header with Target Logo */}
         <div className="sidebar-header">
           <div className="sidebar-brand">
             <div className="sidebar-brand-icon" aria-hidden="true" />
             {!collapsed && (
               <div>
-                <div style={{ lineHeight: 1.1 }}>StockPilot</div>
+                <div style={{ lineHeight: 1.1 }}>Retail Inventory</div>
               </div>
             )}
           </div>
@@ -120,9 +121,8 @@ export const Sidebar = ({
                   <NavLink
                     key={item.path}
                     to={item.path}
-                    onClick={onCloseMobile}
                     className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                    title={collapsed ? item.label : undefined}
+                    title={item.label}
                   >
                     <item.icon className="nav-item-icon" />
                     {!collapsed && <span>{item.label}</span>}
@@ -132,27 +132,6 @@ export const Sidebar = ({
             );
           })}
         </nav>
-
-        {/* Bottom AI Assistant Promo Card (Matching Reference Image) */}
-        {!collapsed && (
-          <div className="sidebar-ai-card">
-            <div className="ai-card-badge">
-              <Sparkles size={16} />
-            </div>
-            <div>
-              <div className="ai-card-title">Empowering Decision with AI</div>
-              <div className="ai-card-sub">Automated Reorders &amp; Demand Insights</div>
-            </div>
-            <button
-              type="button"
-              className="ai-card-btn"
-              onClick={() => setIsAiModalOpen(true)}
-            >
-              <Zap size={13} />
-              <span>Unlock AI Magic</span>
-            </button>
-          </div>
-        )}
 
         {/* Sidebar Footer with Operator Info & Logout */}
         <div className="sidebar-footer">
@@ -190,85 +169,6 @@ export const Sidebar = ({
         </div>
       </aside>
 
-      {/* AI Intelligence Modal */}
-      <Modal
-        isOpen={isAiModalOpen}
-        onClose={() => setIsAiModalOpen(false)}
-        title="StockPilot Retail Intelligence"
-        subtitle="Automated inventory optimization and replenishment recommendations"
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div
-            style={{
-              padding: '1rem',
-              backgroundColor: 'var(--status-green-bg)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(40, 84, 30, 0.15)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: 'var(--status-green-text)', fontSize: '0.875rem' }}>
-              <Sparkles size={16} />
-              <span>Automated Reorder Recommendations</span>
-            </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-main)', marginTop: '0.35rem' }}>
-              StockPilot analyzed 14-day velocity and detected 2 SKUs approaching safety stock thresholds. Generating suggested PO drafts for supplier approval.
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.75rem',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: '#FFFFFF',
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Thermal Roll 80mm Media (SKU-2315)</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>Current Stock: 28 units · Reorder threshold: 30</div>
-              </div>
-              <Badge variant="warning">Auto-PO +200</Badge>
-            </div>
-
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '0.75rem',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: 'var(--radius-sm)',
-                backgroundColor: '#FFFFFF',
-              }}
-            >
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>Apex Wireless POS Terminal (SKU-8942)</div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>Velocity: +18% WoW · Projected stockout: 34 days</div>
-              </div>
-              <Badge variant="success">Optimal Buffer</Badge>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.5rem' }}>
-            <Button variant="secondary" onClick={() => setIsAiModalOpen(false)}>
-              Close
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => {
-                setIsAiModalOpen(false);
-                navigate('/purchase-orders');
-              }}
-            >
-              Review Purchase Orders
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </>
   );
 };

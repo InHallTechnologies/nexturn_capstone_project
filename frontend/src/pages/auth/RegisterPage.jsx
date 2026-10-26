@@ -6,8 +6,6 @@ import {
   Lock,
   Mail,
   User,
-  Users,
-  ChevronDown,
   ArrowRight,
   Package,
   FileText,
@@ -17,12 +15,12 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import registerIllustration from '../../assets/register_illustration.jpg';
-import { StockPilotLogo, GoogleIcon } from './LoginPage';
+import { RetailInventoryLogo } from './LoginPage';
 import './AuthPages.css';
 
 export const RegisterPage = () => {
   const { register } = useAuth();
-  const { showSuccess, showInfo } = useToast();
+  const { showSuccess } = useToast();
   const navigate = useNavigate();
 
   const [firstName, setFirstName] = useState('');
@@ -30,7 +28,6 @@ export const RegisterPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [roleSelection, setRoleSelection] = useState('Staff');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -94,12 +91,6 @@ export const RegisterPage = () => {
     }
   };
 
-  const handleGoogleClick = () => {
-    showInfo(
-      'Google sign-up is not currently enabled for this tenant. Please register with your details.'
-    );
-  };
-
   return (
     <div className="auth-page-wrapper">
       <div className="auth-split-card">
@@ -109,8 +100,8 @@ export const RegisterPage = () => {
         <div className="auth-brand-panel">
           {/* Top Brand & Headline */}
           <div className="auth-brand-header">
-            <Link to="/" className="auth-logo-badge" aria-label="StockPilot Home">
-              <StockPilotLogo size={36} />
+            <Link to="/register" className="auth-logo-badge" aria-label="Retail Inventory home">
+              <RetailInventoryLogo size={36} />
             </Link>
 
             <h1 className="auth-brand-headline">
@@ -120,7 +111,7 @@ export const RegisterPage = () => {
             </h1>
 
             <p className="auth-brand-subtext">
-              Create your account and take control of your business with StockPilot.
+              Create your account and take control of your business with Retail Inventory.
             </p>
           </div>
 
@@ -128,7 +119,7 @@ export const RegisterPage = () => {
           <div className="auth-illustration-container">
             <img
               src={registerIllustration}
-              alt="StockPilot 3D Laptop and Inventory Analytics Illustration"
+              alt="Retail inventory dashboard illustration"
               className="auth-illustration-img"
             />
           </div>
@@ -167,7 +158,7 @@ export const RegisterPage = () => {
             ==================================================================== */}
         <div className="auth-form-panel">
           <h2 className="auth-form-title">Create Your Account</h2>
-          <p className="auth-form-subtitle">Join StockPilot and streamline your retail operations.</p>
+          <p className="auth-form-subtitle">Join Retail Inventory and streamline your operations.</p>
 
           {/* Error Banner */}
           {error && (
@@ -318,33 +309,6 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            {/* Select Role Dropdown */}
-            <div className="auth-field-group">
-              <div className="auth-input-wrapper">
-                <Users size={18} className="auth-input-icon" />
-                <select
-                  id="register-role"
-                  className="auth-input-field auth-select-field"
-                  value={roleSelection}
-                  onChange={(e) => {
-                    setRoleSelection(e.target.value);
-                    if (e.target.value !== 'Staff') {
-                      showInfo(
-                        'Note: Self-registered users default to Staff role. Manager and Owner privileges are provisioned administratively.'
-                      );
-                    }
-                  }}
-                  disabled={loading}
-                  aria-label="Select Role"
-                >
-                  <option value="Staff">Staff (Storefront &amp; POS)</option>
-                  <option value="Manager">Manager (Provision Required)</option>
-                  <option value="Owner">Owner (Executive Admin)</option>
-                </select>
-                <ChevronDown size={18} className="auth-select-chevron" />
-              </div>
-            </div>
-
             {/* Primary Action Button: Create Account */}
             <button
               type="submit"
@@ -362,19 +326,6 @@ export const RegisterPage = () => {
               )}
             </button>
           </form>
-
-          {/* Divider: OR */}
-          <div className="auth-divider">
-            <span className="auth-divider-line" />
-            <span className="auth-divider-text">OR</span>
-            <span className="auth-divider-line" />
-          </div>
-
-          {/* Google Sign In */}
-          <button type="button" className="auth-btn-google" onClick={handleGoogleClick}>
-            <GoogleIcon size={18} />
-            <span>Continue with Google</span>
-          </button>
 
           {/* Footer Prompt */}
           <div className="auth-footer-prompt">

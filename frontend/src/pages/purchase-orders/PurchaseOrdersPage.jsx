@@ -16,6 +16,7 @@ import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
+import { formatCurrency } from '../../utils/currency';
 
 export const PurchaseOrdersPage = () => {
   const { isOwner, canCreatePurchaseOrder } = useAuth();
@@ -187,7 +188,7 @@ export const PurchaseOrdersPage = () => {
       align: 'right',
       render: (order) => (
         <span style={{ fontWeight: 700, color: 'var(--text-main)' }}>
-          ${calculateTotalCost(order.items).toFixed(2)}
+          {formatCurrency(calculateTotalCost(order.items))}
         </span>
       ),
     },

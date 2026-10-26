@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCompactCurrency, formatCurrency } from '../../utils/currency';
 
 export const AreaChart = ({
   data = [], // [{ label, value }]
@@ -6,7 +7,6 @@ export const AreaChart = ({
   strokeColor = '#2563eb',
   gradientFrom = 'rgba(37, 99, 235, 0.25)',
   gradientTo = 'rgba(37, 99, 235, 0.0)',
-  valuePrefix = '$',
   emptyMessage = 'No sales data to chart for this period',
 }) => {
   const [hoveredPoint, setHoveredPoint] = useState(null);
@@ -87,8 +87,7 @@ export const AreaChart = ({
                 fill="#64748b"
                 fontFamily="inherit"
               >
-                {valuePrefix}
-                {tick >= 1000 ? `${(tick / 1000).toFixed(1)}k` : tick}
+                {formatCompactCurrency(tick)}
               </text>
             </g>
           );
@@ -168,11 +167,7 @@ export const AreaChart = ({
         >
           <div style={{ opacity: 0.75, fontSize: '0.7rem' }}>{hoveredPoint.label}</div>
           <div style={{ fontWeight: 700 }}>
-            {valuePrefix}
-            {hoveredPoint.value.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {formatCurrency(hoveredPoint.value)}
           </div>
         </div>
       )}

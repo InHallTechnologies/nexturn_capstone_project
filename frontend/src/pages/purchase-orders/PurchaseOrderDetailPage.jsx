@@ -17,6 +17,7 @@ import { Badge } from '../../components/common/Badge';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
+import { formatCurrency } from '../../utils/currency';
 
 export const PurchaseOrderDetailPage = () => {
   const { id } = useParams();
@@ -272,7 +273,7 @@ export const PurchaseOrderDetailPage = () => {
               Total Order Value
             </span>
             <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--primary-600)', marginTop: '0.2rem' }}>
-              ${totalCost.toFixed(2)}
+              {formatCurrency(totalCost)}
             </div>
           </div>
 
@@ -348,10 +349,10 @@ export const PurchaseOrderDetailPage = () => {
                       {remaining}
                     </td>
                     <td style={{ textAlign: 'right', color: 'var(--text-secondary)' }}>
-                      ${Number(item.unit_cost).toFixed(2)}
+                      {formatCurrency(item.unit_cost)}
                     </td>
                     <td style={{ textAlign: 'right', fontWeight: 700 }}>
-                      ${(item.ordered_qty * Number(item.unit_cost)).toFixed(2)}
+                      {formatCurrency(item.ordered_qty * Number(item.unit_cost))}
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       {isFulfilled ? (

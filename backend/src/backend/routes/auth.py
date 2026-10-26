@@ -30,7 +30,12 @@ def handle_register():
     
         hashed_password=hash_password(result["password"])
     
-        user_data = User(name=result["name"],email=result["email"],password=hashed_password,role=result["role"])
+        user_data = User(
+            name=result["name"],
+            email=result["email"],
+            password=hashed_password,
+            role="Staff",
+        )
     
         db.add(user_data)
         db.commit()

@@ -69,10 +69,16 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('stockpilot_refresh_token', data.refresh_token);
     }
 
-    // Fetch user profile
-    const profile = await authApi.getMe();
-    setUser(profile);
-    return profile;
+    try {
+      const profile = await authApi.getMe();
+      setUser(profile);
+      return profile;
+    } catch (error) {
+      localStorage.removeItem('stockpilot_access_token');
+      localStorage.removeItem('stockpilot_refresh_token');
+      setUser(null);
+      throw error;
+    }
   };
 
   const register = async (name, email, password) => {

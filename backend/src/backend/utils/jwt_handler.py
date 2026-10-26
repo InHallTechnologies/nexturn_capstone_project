@@ -7,6 +7,12 @@ from uuid import uuid4
 load_dotenv()
 
 SECRET_KEY=os.getenv("SECRET_KEY")
+if (
+    not SECRET_KEY
+    or len(SECRET_KEY.encode("utf-8")) < 32
+    or any(marker in SECRET_KEY.lower() for marker in ("replace", "change", "placeholder"))
+):
+    raise RuntimeError("SECRET_KEY must contain at least 32 bytes")
 
 def tokenizing(email, role, token_type="access"):
     lifetime = timedelta(hours=1) if token_type == "access" else timedelta(days=7)

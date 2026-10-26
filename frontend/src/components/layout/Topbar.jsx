@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Search, Bell, MessageSquare, Shield } from 'lucide-react';
+import { Search, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Badge } from '../common/Badge';
 
-export const Topbar = ({ onOpenMobile }) => {
+export const Topbar = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
@@ -34,24 +34,6 @@ export const Topbar = ({ onOpenMobile }) => {
   return (
     <header className="topbar">
       <div className="topbar-left">
-        <button
-          onClick={onOpenMobile}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-main)',
-            cursor: 'pointer',
-            padding: '0.4rem',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-          className="mobile-toggle-btn"
-          aria-label="Open navigation menu"
-        >
-          <Menu size={22} />
-        </button>
-
-        {/* Hello {Name} Greeting matching Inventra Reference Image */}
         <div className="topbar-greeting">
           <span className="greeting-label">Hello</span>
           <span className="greeting-name">{firstName} 👋</span>
@@ -70,26 +52,6 @@ export const Topbar = ({ onOpenMobile }) => {
             onChange={(e) => setSearchValue(e.target.value)}
           />
         </form>
-
-        {/* Circular Notification Bell Button */}
-        <button
-          type="button"
-          className="topbar-circle-btn"
-          title="Stock Alerts & Notifications"
-          onClick={() => navigate('/stock-movements')}
-        >
-          <Bell size={17} />
-        </button>
-
-        {/* Circular Messages / Feed Button */}
-        <button
-          type="button"
-          className="topbar-circle-btn"
-          title="Purchase Orders Activity"
-          onClick={() => navigate('/purchase-orders')}
-        >
-          <MessageSquare size={17} />
-        </button>
 
         {/* Role Badge */}
         <Badge variant={getRoleVariant(user?.role)} dot icon={Shield}>

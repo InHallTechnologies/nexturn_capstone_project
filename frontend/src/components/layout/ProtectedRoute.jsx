@@ -37,7 +37,7 @@ export const ProtectedRoute = ({ allowedRoles = [] }) => {
           <Box size={24} />
         </div>
         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-          Initializing StockPilot session...
+          Initializing Retail Inventory session...
         </div>
         <style>{`
           @keyframes pulse {

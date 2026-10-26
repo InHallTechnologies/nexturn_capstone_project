@@ -47,6 +47,7 @@ def list_categories(current_user_email):
 
 @categories_bp.get("/<int:category_id>")
 @token_required
+@role_required("Owner", "Manager")
 def get_category(current_user_email, category_id):
     db = SessionLocal()
     try:

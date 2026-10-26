@@ -14,6 +14,7 @@ import { suppliersApi } from '../../api/suppliers';
 import { productsApi } from '../../api/products';
 import { Button } from '../../components/common/Button';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
+import { formatCurrency } from '../../utils/currency';
 
 export const CreatePurchaseOrderPage = () => {
   const { showSuccess } = useToast();
@@ -303,7 +304,7 @@ export const CreatePurchaseOrderPage = () => {
 
                     <div>
                       <label style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'block', marginBottom: '2px' }}>
-                        Unit Cost ($) *
+                        Unit Cost (₹) *
                       </label>
                       <input
                         type="number"
@@ -322,7 +323,7 @@ export const CreatePurchaseOrderPage = () => {
                         Subtotal
                       </span>
                       <span style={{ fontWeight: 700, fontSize: '0.875rem' }}>
-                        ${calculateSubtotal(item).toFixed(2)}
+                        {formatCurrency(calculateSubtotal(item))}
                       </span>
                     </div>
 
@@ -374,7 +375,7 @@ export const CreatePurchaseOrderPage = () => {
                 }}
               >
                 <span>Estimated Cost</span>
-                <span style={{ color: 'var(--primary-600)' }}>${totalCost.toFixed(2)}</span>
+                <span style={{ color: 'var(--primary-600)' }}>{formatCurrency(totalCost)}</span>
               </div>
             </div>
 

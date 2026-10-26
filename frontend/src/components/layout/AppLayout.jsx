@@ -5,18 +5,15 @@ import { Topbar } from './Topbar';
 
 export const AppLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
     <div className="app-shell">
       <Sidebar
         collapsed={collapsed}
         onToggleCollapse={() => setCollapsed(!collapsed)}
-        mobileOpen={mobileOpen}
-        onCloseMobile={() => setMobileOpen(false)}
       />
       <div className="main-wrapper">
-        <Topbar onOpenMobile={() => setMobileOpen(true)} />
+        <Topbar />
         <main className="page-scroll-container">
           <Outlet />
         </main>

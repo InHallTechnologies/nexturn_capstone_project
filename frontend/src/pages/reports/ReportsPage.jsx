@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   AlertTriangle,
-  DollarSign,
+  IndianRupee,
   TrendingUp,
   Download,
   Calendar,
@@ -16,6 +16,7 @@ import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { AreaChart } from '../../components/charts/AreaChart';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
+import { formatCurrency } from '../../utils/currency';
 
 export const ReportsPage = () => {
   const { isOwner } = useAuth();
@@ -93,7 +94,7 @@ export const ReportsPage = () => {
   // Export to CSV helper
   const exportToCSV = () => {
     let rows = [];
-    let filename = `stockpilot-${activeTab}-${new Date().toISOString().slice(0, 10)}.csv`;
+    let filename = `retail-inventory-${activeTab}-${new Date().toISOString().slice(0, 10)}.csv`;
 
     if (activeTab === 'low-stock') {
       rows = [
@@ -102,12 +103,12 @@ export const ReportsPage = () => {
       ];
     } else if (activeTab === 'valuation') {
       rows = [
-        ['Product ID', 'SKU', 'Product Name', 'Stock On Hand', 'Unit Cost Price ($)', 'Valuation at Cost ($)'],
+        ['Product ID', 'SKU', 'Product Name', 'Stock On Hand', 'Unit Cost Price (INR)', 'Valuation at Cost (INR)'],
         ...valuationData.map((d) => [d.product_id, d.sku, `"${d.name}"`, d.stock, d.cost_price, d.value_at_cost]),
       ];
     } else if (activeTab === 'sales-by-day') {
       rows = [
-        ['Date', 'Bills Count', 'Total Sales Revenue ($)'],
+        ['Date', 'Bills Count', 'Total Sales Revenue (INR)'],
         ...salesByDayData.map((d) => [d.date, d.bill_count, d.total_sales]),
       ];
     } else if (activeTab === 'ledger-balance') {
@@ -176,7 +177,7 @@ export const ReportsPage = () => {
           disabled={!isOwner}
           title={!isOwner ? 'Owner access only' : undefined}
         >
-          <DollarSign size={15} /> Inventory Valuation
+          <IndianRupee size={15} /> Inventory Valuation
           {!isOwner && <Lock size={12} style={{ opacity: 0.6 }} />}
         </button>
 
@@ -284,7 +285,7 @@ export const ReportsPage = () => {
                 Authoritative Inventory Asset Valuation
               </span>
               <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--primary-600)', marginTop: '0.15rem' }}>
-                ${Number(valuationTotal).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatCurrency(valuationTotal)}
               </div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                 Computed from total positive stock movements multiplied by purchase cost price
@@ -319,7 +320,7 @@ export const ReportsPage = () => {
                 header: 'Unit Cost Price',
                 key: 'cost_price',
                 align: 'right',
-                render: (r) => <span>${Number(r.cost_price).toFixed(2)}</span>,
+                render: (r) => <span>{formatCurrency(r.cost_price)}</span>,
               },
               {
                 header: 'Value at Cost',
@@ -327,7 +328,7 @@ export const ReportsPage = () => {
                 align: 'right',
                 render: (r) => (
                   <span style={{ fontWeight: 700, color: 'var(--success-solid)' }}>
-                    ${Number(r.value_at_cost).toFixed(2)}
+                    {formatCurrency(r.value_at_cost)}
                   </span>
                 ),
               },
@@ -409,7 +410,7 @@ export const ReportsPage = () => {
                 align: 'right',
                 render: (r) => (
                   <span style={{ fontWeight: 700, color: 'var(--primary-600)', fontSize: '0.95rem' }}>
-                    ${Number(r.total_sales).toFixed(2)}
+                    {formatCurrency(r.total_sales)}
                   </span>
                 ),
               },

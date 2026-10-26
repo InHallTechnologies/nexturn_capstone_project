@@ -10,9 +10,6 @@ import {
   FileText,
   TrendingUp,
   AlertCircle,
-  ChevronDown,
-  ChevronUp,
-  CheckCircle2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -22,7 +19,7 @@ import './AuthPages.css';
 /**
  * Clean SVG 3D Isometric Cube Logo matching the reference mockup
  */
-export const StockPilotLogo = ({ size = 32, className = '' }) => (
+export const RetailInventoryLogo = ({ size = 32, className = '' }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }} className={className}>
     <svg width={size} height={size} viewBox="0 0 36 36" fill="none">
       {/* Outer Hexagonal Shield */}
@@ -59,49 +56,23 @@ export const StockPilotLogo = ({ size = 32, className = '' }) => (
         letterSpacing: '-0.03em',
       }}
     >
-      StockPilot
+      Retail Inventory
     </span>
   </div>
 );
 
-/**
- * Official Google Multicolored "G" SVG
- */
-export const GoogleIcon = ({ size = 18 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-    <path
-      fill="#4285F4"
-      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.66v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.15z"
-    />
-    <path
-      fill="#34A853"
-      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.28v3.15C3.26 21.36 7.34 24 12 24z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.28C.46 8.2.0 10.04.0 12s.46 3.8.1.28 5.42l4-3.15z"
-    />
-    <path
-      fill="#EA4335"
-      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.28 6.58l4 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-    />
-  </svg>
-);
-
 export const LoginPage = () => {
   const { login } = useAuth();
-  const { showSuccess, showInfo } = useToast();
+  const { showSuccess } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
-  const [showDemoDrawer, setShowDemoDrawer] = useState(false);
 
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -141,40 +112,6 @@ export const LoginPage = () => {
     }
   };
 
-  const handleDemoLogin = async (demoEmail, demoPassword) => {
-    setEmail(demoEmail);
-    setPassword(demoPassword);
-    setFieldErrors({});
-    setError('');
-    setLoading(true);
-    try {
-      const user = await login(demoEmail, demoPassword);
-      showSuccess(`Welcome back, ${user.name}! Signed in as ${user.role}.`);
-      navigate(from, { replace: true });
-    } catch (err) {
-      const msg =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        'Demo login failed. Please ensure the backend is running.';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleClick = () => {
-    showInfo(
-      'Google single sign-on is not currently enabled for this tenant. Please sign in with email and password.'
-    );
-  };
-
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
-    showInfo(
-      'Please contact your organization administrator or store owner to reset operator credentials.'
-    );
-  };
-
   return (
     <div className="auth-page-wrapper">
       <div className="auth-split-card">
@@ -184,8 +121,8 @@ export const LoginPage = () => {
         <div className="auth-brand-panel">
           {/* Top Brand & Headline */}
           <div className="auth-brand-header">
-            <Link to="/" className="auth-logo-badge" aria-label="StockPilot Home">
-              <StockPilotLogo size={36} />
+            <Link to="/login" className="auth-logo-badge" aria-label="Retail Inventory home">
+              <RetailInventoryLogo size={36} />
             </Link>
 
             <h1 className="auth-brand-headline">
@@ -201,7 +138,7 @@ export const LoginPage = () => {
           <div className="auth-illustration-container">
             <img
               src={loginIllustration}
-              alt="StockPilot 3D Inventory Shelving and Warehouse Illustration"
+              alt="Retail inventory shelving and warehouse illustration"
               className="auth-illustration-img"
             />
           </div>
@@ -240,7 +177,7 @@ export const LoginPage = () => {
             ==================================================================== */}
         <div className="auth-form-panel">
           <h2 className="auth-form-title">Welcome Back</h2>
-          <p className="auth-form-subtitle">Sign in to your StockPilot account</p>
+          <p className="auth-form-subtitle">Sign in to your Retail Inventory account</p>
 
           {/* Error Banner */}
           {error && (
@@ -309,24 +246,6 @@ export const LoginPage = () => {
               )}
             </div>
 
-            {/* Options Row: Remember Me & Forgot Password */}
-            <div className="auth-options-row">
-              <label className="auth-checkbox-label" htmlFor="remember-me">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  className="auth-checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <span>Remember me</span>
-              </label>
-
-              <a href="#forgot" onClick={handleForgotPassword} className="auth-link">
-                Forgot password?
-              </a>
-            </div>
-
             {/* Submit Button: Sign In */}
             <button type="submit" className="auth-btn-primary" disabled={loading}>
               {loading ? (
@@ -340,19 +259,6 @@ export const LoginPage = () => {
             </button>
           </form>
 
-          {/* Divider: OR */}
-          <div className="auth-divider">
-            <span className="auth-divider-line" />
-            <span className="auth-divider-text">OR</span>
-            <span className="auth-divider-line" />
-          </div>
-
-          {/* Google Sign In */}
-          <button type="button" className="auth-btn-google" onClick={handleGoogleClick}>
-            <GoogleIcon size={18} />
-            <span>Continue with Google</span>
-          </button>
-
           {/* Footer Prompt */}
           <div className="auth-footer-prompt">
             Don't have an account?
@@ -361,60 +267,6 @@ export const LoginPage = () => {
             </Link>
           </div>
 
-          {/* Quick Demo Keycards Drawer (For easy evaluation) */}
-          <div className="auth-demo-drawer">
-            <button
-              type="button"
-              className="auth-demo-toggle"
-              onClick={() => setShowDemoDrawer(!showDemoDrawer)}
-            >
-              <span>Quick Demo Accounts</span>
-              {showDemoDrawer ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            </button>
-
-            {showDemoDrawer && (
-              <div className="auth-demo-grid">
-                <button
-                  type="button"
-                  className="auth-demo-btn"
-                  onClick={() => handleDemoLogin('owner@example.com', 'Owner@123')}
-                  disabled={loading}
-                >
-                  <span className="auth-demo-role">
-                    <CheckCircle2 size={11} style={{ display: 'inline', marginRight: 3 }} />
-                    Owner
-                  </span>
-                  <span className="auth-demo-desc">Full Executive</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="auth-demo-btn"
-                  onClick={() => handleDemoLogin('manager@example.com', 'Manager@123')}
-                  disabled={loading}
-                >
-                  <span className="auth-demo-role">
-                    <CheckCircle2 size={11} style={{ display: 'inline', marginRight: 3 }} />
-                    Manager
-                  </span>
-                  <span className="auth-demo-desc">Warehouse &amp; POs</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="auth-demo-btn"
-                  onClick={() => handleDemoLogin('staff@example.com', 'Staff@123')}
-                  disabled={loading}
-                >
-                  <span className="auth-demo-role">
-                    <CheckCircle2 size={11} style={{ display: 'inline', marginRight: 3 }} />
-                    Staff
-                  </span>
-                  <span className="auth-demo-desc">POS &amp; Stock</span>
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>

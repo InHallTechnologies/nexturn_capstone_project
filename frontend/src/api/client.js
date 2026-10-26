@@ -28,8 +28,12 @@ const processQueue = (error, token = null) => {
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('stockpilot_access_token');
-    if (token && !config.headers.Authorization) {
+    if (config.url?.includes('/api/auth/refresh')) {
+      delete config.headers.Authorization;
+    } else if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization;
     }
     return config;
   },
@@ -86,7 +90,6 @@ apiClient.interceptors.response.use(
           localStorage.setItem('stockpilot_refresh_token', newRefreshToken);
         }
 
-        apiClient.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
         processQueue(null, newAccessToken);

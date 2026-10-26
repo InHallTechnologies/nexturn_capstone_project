@@ -17,15 +17,10 @@ export const authApi = {
   },
 
   logout: async (refreshToken) => {
-    try {
-      const response = await apiClient.post('/api/auth/logout', {
-        refresh_token: refreshToken || localStorage.getItem('stockpilot_refresh_token'),
-      });
-      return response.data;
-    } catch {
-      // Even if server revocation fails, client tokens will be cleared
-      return { message: 'Logged out' };
-    }
+    const response = await apiClient.post('/api/auth/logout', {
+      refresh_token: refreshToken || localStorage.getItem('stockpilot_refresh_token'),
+    });
+    return response.data;
   },
 
   refresh: async (refreshToken) => {

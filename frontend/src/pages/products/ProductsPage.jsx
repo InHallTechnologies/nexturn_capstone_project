@@ -18,6 +18,7 @@ import { SearchInput } from '../../components/common/SearchInput';
 import { Modal } from '../../components/common/Modal';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
+import { formatCurrency } from '../../utils/currency';
 
 export const ProductsPage = () => {
   const { user, canManageProducts } = useAuth();
@@ -296,7 +297,7 @@ export const ProductsPage = () => {
             align: 'right',
             render: (p) => (
               <span style={{ color: 'var(--text-secondary)' }}>
-                ${Number(p.cost_price || 0).toFixed(2)}
+                {formatCurrency(p.cost_price || 0)}
               </span>
             ),
           },
@@ -309,7 +310,7 @@ export const ProductsPage = () => {
       align: 'right',
       render: (p) => (
         <span style={{ fontWeight: 600, color: 'var(--text-main)' }}>
-          ${Number(p.selling_price).toFixed(2)}
+          {formatCurrency(p.selling_price)}
         </span>
       ),
     },
@@ -608,7 +609,7 @@ export const ProductsPage = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group">
               <label className="form-label" htmlFor="prod-cost">
-                Cost Price ($) *
+                Cost Price (₹) *
               </label>
               <input
                 id="prod-cost"
@@ -624,7 +625,7 @@ export const ProductsPage = () => {
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="prod-selling">
-                Selling Price ($) *
+                Selling Price (₹) *
               </label>
               <input
                 id="prod-selling"
@@ -687,11 +688,11 @@ export const ProductsPage = () => {
                   Selling Price
                 </div>
                 <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary-600)', marginTop: '0.25rem' }}>
-                  ${Number(viewingProduct.selling_price).toFixed(2)}
+                  {formatCurrency(viewingProduct.selling_price)}
                 </div>
                 {viewingProduct.cost_price !== undefined && (
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
-                    Cost Price: <strong>${Number(viewingProduct.cost_price).toFixed(2)}</strong> (Margin: ${(Number(viewingProduct.selling_price) - Number(viewingProduct.cost_price)).toFixed(2)})
+                    Cost Price: <strong>{formatCurrency(viewingProduct.cost_price)}</strong> (Margin: {formatCurrency(Number(viewingProduct.selling_price) - Number(viewingProduct.cost_price))})
                   </div>
                 )}
               </div>

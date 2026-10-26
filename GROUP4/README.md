@@ -57,7 +57,7 @@ A small retail store tracks stock, raises purchase orders to suppliers, receives
 
 - Passwords hashed with bcrypt - plain text passwords must never touch the database.
 - Endpoints: `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`, `GET /auth/me`.
-- The access token carries a `role` claim; a custom decorator `@role_required("admin")` guards privileged routes on top of `@jwt_required()`.
+- The access token carries a `role` claim; the API's `@role_required(...)` decorator guards privileged routes on top of JWT authentication.
 - Refresh rotation: a refresh call issues a new access token; logout adds the token JTI to a blocklist so it cannot be reused.
 - React side: Axios request interceptor attaches the token, response interceptor catches 401, calls refresh once, retries the original request, and logs the user out if refresh also fails.
 - Route protection in React by role - a seeker must never be able to open an admin screen, even by typing the URL.
@@ -166,10 +166,10 @@ We confirm the above split is accurate and every member contributed code to this
 ## Deliverables Checklist
 
 - [ ] GitHub repository containing both applications with a readable commit history from every member.
-- [ ] README.md with setup instructions, environment variables and an API endpoint table.
-- [ ] ER diagram (SQL) or collection diagram (MongoDB).
+- [x] README.md with setup instructions, environment variables and an API endpoint table.
+- [x] ER diagram in [`docs/data-model.md`](../docs/data-model.md).
 - [ ] Seed script with demo data and demo credentials per role.
-- [ ] Postman collection covering every endpoint.
+- [x] Postman collection covering implemented endpoints in [`postman/Retail-Inventory.postman_collection.json`](../postman/Retail-Inventory.postman_collection.json).
 - [ ] Working `docker compose up --build` on a clean machine.
 - [ ] 5-minute demo video.
 
@@ -185,16 +185,22 @@ We confirm the above split is accurate and every member contributed code to this
 
 ## Setup
 
-```bash
-git clone <repo-url>
-cd <repo>
-cp .env.example .env
-docker compose up --build
-```
+1. Copy `backend/.env.example` to `backend/.env`.
+2. Replace the placeholder database password, `DATABASE_URL`, JWT secret, and
+   initial seed passwords with deployment-specific values.
+3. From the repository root, start the application:
+
+   ```powershell
+   docker compose --env-file backend/.env up --build
+   ```
 
 | Service | URL |
 | --- | --- |
-| Frontend | http://localhost:3000 |
-| API | http://localhost:5000/api |
+| Frontend | http://localhost:8080 |
+| API | http://localhost:8000/api |
 
-**Demo credentials:** _(fill in after seeding)_
+Seed account emails are `owner@example.com`, `manager@example.com`, and
+`staff@example.com`. Set their initial passwords with
+`OWNER_INITIAL_PASSWORD`, `MANAGER_INITIAL_PASSWORD`, and
+`STAFF_INITIAL_PASSWORD` in `backend/.env`. Passwords are intentionally not
+committed to the repository.

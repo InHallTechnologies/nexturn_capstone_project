@@ -1,5 +1,5 @@
 /* ==========================================================================
-   StockPilot — Premium Retail Management Authentication Experience
+   Retail Inventory Authentication Experience
    Ethereal Ivory, Sophisticated Sage, Minimalist Split-Screen Architecture
    ========================================================================== */
 
@@ -14,7 +14,6 @@
   --auth-accent-hover: #484D2E;
   --auth-border: #D4D5CC;
   --auth-input-bg: #FFFFFF;
-  --auth-success: #DDEBD3;
   --auth-error-bg: #F5DCDC;
   --auth-error-text: #7A2020;
 }
@@ -282,60 +281,6 @@
   margin-bottom: 1rem;
 }
 
-/* Select Dropdown */
-.auth-select-field {
-  appearance: none;
-  cursor: pointer;
-  padding-right: 2.5rem;
-}
-
-.auth-select-chevron {
-  position: absolute;
-  right: 1rem;
-  color: #8C9086;
-  pointer-events: none;
-}
-
-/* Checkbox and Forgot Password Row */
-.auth-options-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.8125rem;
-  margin-top: 0.35rem;
-  margin-bottom: 1.35rem;
-}
-
-.auth-checkbox-label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--auth-text-main);
-  font-weight: 500;
-  cursor: pointer;
-  user-select: none;
-}
-
-.auth-checkbox {
-  accent-color: var(--auth-accent);
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.auth-link {
-  color: var(--auth-text-main);
-  font-weight: 600;
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-
-.auth-link:hover {
-  color: var(--auth-accent);
-  text-decoration: underline;
-}
-
 /* Primary Action Button (Sign In / Create Account) */
 .auth-btn-primary {
   width: 100%;
@@ -362,51 +307,6 @@
 .auth-btn-primary:disabled {
   opacity: 0.65;
   cursor: not-allowed;
-}
-
-/* Divider with "OR" */
-.auth-divider {
-  display: flex;
-  align-items: center;
-  margin: 1.25rem 0;
-}
-
-.auth-divider-line {
-  flex: 1;
-  height: 1px;
-  background-color: #E2E4DC;
-}
-
-.auth-divider-text {
-  padding: 0 0.85rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #8C9086;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Google Sign In Button */
-.auth-btn-google {
-  width: 100%;
-  height: 48px;
-  background-color: #FFFFFF;
-  border: 1px solid var(--auth-border);
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--auth-text-main);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.auth-btn-google:hover {
-  background-color: #F8F8F4;
-  border-color: var(--auth-sage-surface);
 }
 
 /* Footer Prompt & Switch Link */
@@ -447,69 +347,6 @@
   color: #B91C1C;
   margin-top: 0.25rem;
   font-weight: 500;
-}
-
-/* Quick Demo Evaluation Drawer */
-.auth-demo-drawer {
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid #EAEBE4;
-}
-
-.auth-demo-toggle {
-  background: none;
-  border: none;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--auth-text-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  width: 100%;
-}
-
-.auth-demo-toggle:hover {
-  color: var(--auth-text-main);
-}
-
-.auth-demo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  margin-top: 0.65rem;
-}
-
-.auth-demo-btn {
-  background-color: #FFFFFF;
-  border: 1px solid var(--auth-border);
-  border-radius: 8px;
-  padding: 0.45rem 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--auth-text-main);
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  transition: all 0.15s ease;
-}
-
-.auth-demo-btn:hover {
-  background-color: var(--auth-success);
-  border-color: #8CB843;
-}
-
-.auth-demo-role {
-  font-weight: 700;
-  color: #28541E;
-}
-
-.auth-demo-desc {
-  font-size: 0.65rem;
-  color: var(--auth-text-muted);
 }
 
 /* Responsive Rules */

@@ -1,0 +1,311 @@
+{
+  "info": {
+    "_postman_id": "3e621d2f-fc14-4c77-9b91-c6f723ca2914",
+    "name": "Retail Inventory API",
+    "description": "Requests for the implemented Flask API. Monetary values use Indian rupees (INR). Set baseUrl to the API root (for example http://localhost:8000/api). Set email/password to a seeded account locally; credentials are not included. The login and refresh requests save rotated tokens for subsequent requests. Use Owner/Manager accounts for privileged routes and an Owner account for approval and financial reports.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "email",
+      "value": "owner@example.com"
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": "1"
+    },
+    {
+      "key": "categoryId",
+      "value": "1"
+    },
+    {
+      "key": "supplierId",
+      "value": "1"
+    },
+    {
+      "key": "purchaseOrderId",
+      "value": "1"
+    },
+    {
+      "key": "purchaseOrderItemId",
+      "value": "1"
+    },
+    {
+      "key": "saleId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register Staff account",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Staff\",\n  \"email\": \"new-staff@example.com\",\n  \"password\": \"ChangeThisPassword123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          },
+          "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "const body = pm.response.json();",
+                    "pm.collectionVariables.set('accessToken', body.access_token || body.token || '');",
+                    "pm.collectionVariables.set('refreshToken', body.refresh_token || '');"
+                  ]
+                }
+              }
+          ]
+        },
+        {
+          "name": "Current user",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/auth/me"
+          }
+        },
+        {
+          "name": "Refresh token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/refresh"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', body.access_token || body.token || '');",
+                  "pm.collectionVariables.set('refreshToken', body.refresh_token || '');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        { "name": "List products", "request": { "method": "GET", "url": "{{baseUrl}}/products?per_page=20" } },
+        { "name": "Get product", "request": { "method": "GET", "url": "{{baseUrl}}/products/{{productId}}" } },
+        {
+          "name": "Create product (Owner/Manager)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"sku\": \"DEMO-001\",\n  \"name\": \"Demo Product\",\n  \"category_id\": {{categoryId}},\n  \"unit\": \"each\",\n  \"cost_price\": 250,\n  \"selling_price\": 450,\n  \"reorder_level\": 5\n}" },
+            "url": "{{baseUrl}}/products"
+          }
+        },
+        {
+          "name": "Update product (Owner/Manager)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"sku\": \"DEMO-001\",\n  \"name\": \"Updated Demo Product\",\n  \"category_id\": {{categoryId}},\n  \"unit\": \"each\",\n  \"cost_price\": 250,\n  \"selling_price\": 475,\n  \"reorder_level\": 5\n}" },
+            "url": "{{baseUrl}}/products/{{productId}}"
+          }
+        },
+        { "name": "Delete product (Owner/Manager)", "request": { "method": "DELETE", "url": "{{baseUrl}}/products/{{productId}}" } }
+      ]
+    },
+    {
+      "name": "Categories (Owner/Manager)",
+      "item": [
+        { "name": "List categories", "request": { "method": "GET", "url": "{{baseUrl}}/categories?per_page=20" } },
+        { "name": "Get category", "request": { "method": "GET", "url": "{{baseUrl}}/categories/{{categoryId}}" } },
+        {
+          "name": "Create category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Demo Category\",\n  \"description\": \"Example inventory group\"\n}" },
+            "url": "{{baseUrl}}/categories"
+          }
+        },
+        {
+          "name": "Update category",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Demo Category\",\n  \"description\": \"Updated example inventory group\"\n}" },
+            "url": "{{baseUrl}}/categories/{{categoryId}}"
+          }
+        },
+        { "name": "Delete category", "request": { "method": "DELETE", "url": "{{baseUrl}}/categories/{{categoryId}}" } }
+      ]
+    },
+    {
+      "name": "Suppliers (Owner/Manager)",
+      "item": [
+        { "name": "List suppliers", "request": { "method": "GET", "url": "{{baseUrl}}/suppliers?per_page=20" } },
+        { "name": "Get supplier", "request": { "method": "GET", "url": "{{baseUrl}}/suppliers/{{supplierId}}" } },
+        { "name": "Supplier purchase history", "request": { "method": "GET", "url": "{{baseUrl}}/suppliers/{{supplierId}}/purchase-orders?per_page=20" } },
+        {
+          "name": "Create supplier",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Demo Supplier\",\n  \"contact\": \"555-0100\",\n  \"email\": \"orders@example.com\",\n  \"address\": \"100 Market Street\",\n  \"payment_terms\": \"Net 30\"\n}" },
+            "url": "{{baseUrl}}/suppliers"
+          }
+        },
+        {
+          "name": "Update supplier",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Demo Supplier\",\n  \"contact\": \"555-0100\",\n  \"email\": \"orders@example.com\",\n  \"address\": \"100 Market Street\",\n  \"payment_terms\": \"Net 30\"\n}" },
+            "url": "{{baseUrl}}/suppliers/{{supplierId}}"
+          }
+        },
+        { "name": "Delete supplier", "request": { "method": "DELETE", "url": "{{baseUrl}}/suppliers/{{supplierId}}" } }
+      ]
+    },
+    {
+      "name": "Purchase orders (Owner/Manager; approve is Owner-only)",
+      "item": [
+        { "name": "List purchase orders", "request": { "method": "GET", "url": "{{baseUrl}}/purchase-orders?per_page=20" } },
+        { "name": "Get purchase order", "request": { "method": "GET", "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}" } },
+        {
+          "name": "Create draft purchase order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"supplier_id\": {{supplierId}},\n  \"expected_date\": \"2030-01-15\",\n  \"items\": [\n    { \"product_id\": {{productId}}, \"ordered_qty\": 10, \"unit_cost\": 250 }\n  ]\n}" },
+            "url": "{{baseUrl}}/purchase-orders"
+          }
+        },
+        {
+          "name": "Update draft purchase order",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"supplier_id\": {{supplierId}},\n  \"expected_date\": \"2030-01-15\",\n  \"items\": [\n    { \"product_id\": {{productId}}, \"ordered_qty\": 12, \"unit_cost\": 250 }\n  ]\n}" },
+            "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}"
+          }
+        },
+        { "name": "Approve purchase order (Owner)", "request": { "method": "POST", "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}/approve" } },
+        {
+          "name": "Receive purchase-order items",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"items\": [\n    { \"item_id\": {{purchaseOrderItemId}}, \"quantity\": 5 }\n  ]\n}" },
+            "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}/receive"
+          }
+        },
+        { "name": "Cancel purchase order", "request": { "method": "POST", "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}/cancel" } },
+        { "name": "Delete draft purchase order", "request": { "method": "DELETE", "url": "{{baseUrl}}/purchase-orders/{{purchaseOrderId}}" } }
+      ]
+    },
+    {
+      "name": "Sales (all roles; non-Owners see their own sales)",
+      "item": [
+        { "name": "List sales", "request": { "method": "GET", "url": "{{baseUrl}}/sales?per_page=20" } },
+        { "name": "Get sale", "request": { "method": "GET", "url": "{{baseUrl}}/sales/{{saleId}}" } },
+        {
+          "name": "Create sale",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"items\": [\n    { \"product_id\": {{productId}}, \"quantity\": 1 }\n  ]\n}" },
+            "url": "{{baseUrl}}/sales"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stock movements (Owner/Manager)",
+      "item": [
+        { "name": "List stock movements", "request": { "method": "GET", "url": "{{baseUrl}}/stock-movements?per_page=20" } },
+        {
+          "name": "Create stock adjustment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"product_id\": {{productId}},\n  \"quantity\": 1,\n  \"notes\": \"Documented stock count correction\"\n}" },
+            "url": "{{baseUrl}}/stock-movements/adjustments"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        { "name": "Low-stock report (Owner/Manager)", "request": { "method": "GET", "url": "{{baseUrl}}/reports/low-stock?per_page=20" } },
+        { "name": "Valuation report (Owner)", "request": { "method": "GET", "url": "{{baseUrl}}/reports/valuation?per_page=20" } },
+        { "name": "Ledger balance report (Owner)", "request": { "method": "GET", "url": "{{baseUrl}}/reports/ledger-balance?per_page=20" } },
+        { "name": "Sales by day report (Owner)", "request": { "method": "GET", "url": "{{baseUrl}}/reports/sales-by-day?start_date=2030-01-01&end_date=2030-01-07&per_page=7" } }
+      ]
+    }
+  ]
+}

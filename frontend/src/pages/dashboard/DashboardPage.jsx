@@ -1,30 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  TrendingUp,
-  TrendingDown,
   ShoppingBag,
   Plus,
-  ExternalLink,
   AlertTriangle,
   ArrowRight,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { productsApi } from '../../api/products';
-import { suppliersApi } from '../../api/suppliers';
 import { purchaseOrdersApi } from '../../api/purchaseOrders';
 import { salesApi } from '../../api/sales';
 import { reportsApi } from '../../api/reports';
-import { categoriesApi } from '../../api/categories';
 import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
-import {
-  StackedBarChart,
-  CategoryBubbles,
-  FulfillmentGauge,
-  ValuationBreakdown,
-} from '../../components/dashboard/DashboardWidgets';
+import { formatCurrency } from '../../utils/currency';
 
 export const DashboardPage = () => {
   const { user, isOwner, isManager, canCreatePurchaseOrder } = useAuth();
@@ -35,21 +25,20 @@ export const DashboardPage = () => {
 
   // KPIs
   const [productCount, setProductCount] = useState(0);
-  const [, setSupplierCount] = useState(null);
   const [lowStockCount, setLowStockCount] = useState(0);
-  const [, setValuationAtCost] = useState(null);
+  const [valuationAtCost, setValuationAtCost] = useState(null);
   const [todaySalesTotal, setTodaySalesTotal] = useState('0.00');
+  const [salesCount, setSalesCount] = useState(0);
+  const [salesTrend, setSalesTrend] = useState([]);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(null);
 
   // Lists & Categories
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [recentSales, setRecentSales] = useState([]);
-  const [categoriesList, setCategoriesList] = useState([]);
 
   // UI States
-  const [activeTableTab, setActiveTableTab] = useState('orders'); // 'orders' | 'lowstock'
-  const [selectedRowIds, setSelectedRowIds] = useState(new Set());
+  const [activeTableTab, setActiveTableTab] = useState('orders');
 
   const loadDashboardData = useCallback(async () => {
     setLoading(true);
@@ -64,105 +53,58 @@ export const DashboardPage = () => {
       setProductCount(allProductsRes.pagination?.total || 0);
 
       // Low stock count
-      if (isOwner || isManager) {
-        try {
-          const lowStockReport = await reportsApi.getLowStockReport({ per_page: 1 });
-          setLowStockCount(lowStockReport.pagination?.total || 0);
-        } catch {
-          setLowStockCount(productsRes.items?.length || 0);
-        }
-      } else {
-        const lowStockStaffRes = await productsApi.listProducts({ per_page: 1, low_stock: 'true' });
-        setLowStockCount(lowStockStaffRes.pagination?.total || 0);
-      }
-
-      // 2. Categories (Owner / Manager only)
-      if (isOwner || isManager) {
-        try {
-          const catRes = await categoriesApi.listCategories({ per_page: 5 });
-          setCategoriesList(catRes.items || []);
-        } catch {
-          setCategoriesList([]);
-        }
-      }
-
-      // 3. Suppliers (Owner / Manager only)
-      if (isOwner || isManager) {
-        try {
-          const suppliersRes = await suppliersApi.listSuppliers({ per_page: 1 });
-          setSupplierCount(suppliersRes.pagination?.total || 0);
-        } catch {
-          setSupplierCount(null);
-        }
-      }
+      setLowStockCount(productsRes.pagination?.total || 0);
 
       // 4. Inventory Valuation at Cost (Owner only)
       if (isOwner) {
-        try {
-          const valuationRes = await reportsApi.getValuationReport({ per_page: 1 });
-          setValuationAtCost(valuationRes.total_value_at_cost);
-        } catch {
-          setValuationAtCost(null);
-        }
+        const valuationRes = await reportsApi.getValuationReport({ per_page: 1 });
+        setValuationAtCost(valuationRes.total_value_at_cost);
+
+        const endDate = new Date();
+        const startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - 6);
+        const dateString = (date) => date.toISOString().slice(0, 10);
+        const salesTrendRes = await reportsApi.getSalesByDayReport({
+          start_date: dateString(startDate),
+          end_date: dateString(endDate),
+          per_page: 7,
+        });
+        setSalesTrend(salesTrendRes.items || []);
+        const today = dateString(endDate);
+        const todayItem = salesTrendRes.items?.find((item) => item.date === today);
+        setTodaySalesTotal(todayItem?.total_sales || '0.00');
       }
 
       // 5. Purchase Orders (Owner / Manager only)
       if (isOwner || isManager) {
-        try {
-          const pendingRes = await purchaseOrdersApi.listPurchaseOrders({
-            status: 'draft',
-            per_page: 1,
-          });
-          const approvedRes = await purchaseOrdersApi.listPurchaseOrders({
-            status: 'approved',
-            per_page: 1,
-          });
-          const totalPending =
-            (pendingRes.pagination?.total || 0) + (approvedRes.pagination?.total || 0);
-          setPendingOrdersCount(totalPending);
+        const pendingRes = await purchaseOrdersApi.listPurchaseOrders({
+          status: 'draft',
+          per_page: 1,
+        });
+        const approvedRes = await purchaseOrdersApi.listPurchaseOrders({
+          status: 'approved',
+          per_page: 1,
+        });
+        setPendingOrdersCount(
+          (pendingRes.pagination?.total || 0) + (approvedRes.pagination?.total || 0)
+        );
 
-          const recentOrdersRes = await purchaseOrdersApi.listPurchaseOrders({
-            per_page: 6,
-            sort_by: 'created_at',
-            sort_order: 'desc',
-          });
-          setRecentOrders(recentOrdersRes.items || []);
-        } catch {
-          setPendingOrdersCount(null);
-          setRecentOrders([]);
-        }
-      }
-
-      // 6. Sales (All authenticated roles)
-      try {
-        const salesRes = await salesApi.listSales({
+        const recentOrdersRes = await purchaseOrdersApi.listPurchaseOrders({
           per_page: 6,
           sort_by: 'created_at',
           sort_order: 'desc',
         });
-        setRecentSales(salesRes.items || []);
-
-        const todayStr = new Date().toISOString().slice(0, 10);
-        if (isOwner) {
-          try {
-            const salesByDayRes = await reportsApi.getSalesByDayReport({
-              start_date: todayStr,
-              end_date: todayStr,
-            });
-            const todayItem = salesByDayRes.items?.find((i) => i.date === todayStr);
-            setTodaySalesTotal(todayItem ? todayItem.total_sales : '0.00');
-          } catch {
-            setTodaySalesTotal('0.00');
-          }
-        } else {
-          const todaySum = (salesRes.items || [])
-            .filter((s) => s.created_at?.slice(0, 10) === todayStr)
-            .reduce((sum, s) => sum + Number(s.total_amount || 0), 0);
-          setTodaySalesTotal(todaySum.toFixed(2));
-        }
-      } catch {
-        setRecentSales([]);
+        setRecentOrders(recentOrdersRes.items || []);
       }
+
+      // Sales list returns the current user's sales except for Owner, who sees all sales.
+      const salesRes = await salesApi.listSales({
+        per_page: 6,
+        sort_by: 'created_at',
+        sort_order: 'desc',
+      });
+      setRecentSales(salesRes.items || []);
+      setSalesCount(salesRes.pagination?.total || 0);
     } catch {
       setError('Unable to load full dashboard statistics from the server.');
     } finally {
@@ -175,6 +117,11 @@ export const DashboardPage = () => {
   }, [loadDashboardData]);
 
   // Order status badge matching Inventra status pills
+  const maxDailySales = Math.max(
+    1,
+    ...salesTrend.map((item) => Number(item.total_sales) || 0)
+  );
+
   const renderOrderStatusBadge = (status) => {
     switch (status) {
       case 'received':
@@ -191,29 +138,12 @@ export const DashboardPage = () => {
     }
   };
 
-  const toggleSelectRow = (id) => {
-    setSelectedRowIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const toggleSelectAll = (items) => {
-    if (selectedRowIds.size === items.length && items.length > 0) {
-      setSelectedRowIds(new Set());
-    } else {
-      setSelectedRowIds(new Set(items.map((i) => i.id)));
-    }
-  };
-
   return (
     <div className="page-container">
       {/* Page Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">Executive Dashboard</h1>
+          <h1 className="page-title">Dashboard</h1>
           <p className="page-subtitle">
             Welcome back, <strong>{user?.name}</strong> • Real-time retail operations &amp; stock intelligence
           </p>
@@ -280,34 +210,27 @@ export const DashboardPage = () => {
       )}
 
       {/* 2-Column Dashboard Layout Grid */}
-      <div className="dashboard-layout-grid">
+      <div className={`dashboard-layout-grid ${isOwner ? 'with-side-col' : ''}`}>
         {/* ====================================================================
             MAIN COLUMN (LEFT): 3 KPI CARDS, SALES REPORT CHART, RECENT ORDERS TABLE
             ==================================================================== */}
         <div className="dashboard-main-col">
           {/* Row 1: 3 KPI Cards */}
           <div className="stats-kpi-row">
-            {/* KPI 1: Total Sales */}
+            {/* Sales KPI uses the role-appropriate backend response. */}
             <div className="kpi-card">
               <div className="kpi-card-top">
-                <span className="kpi-card-lbl">TOTAL SALES</span>
-                <span className="kpi-trend-pill positive">
-                  <TrendingUp size={11} />
-                  <span>+20.8% ↗</span>
-                </span>
+                <span className="kpi-card-lbl">{isOwner ? 'TODAY’S SALES' : 'MY SALES'}</span>
               </div>
               <div className="kpi-card-val-row">
                 <div className="kpi-card-val">
-                  {loading
-                    ? '...'
-                    : `$${Number(todaySalesTotal || 350).toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}`}
+                  {loading ? '...' : isOwner
+                    ? formatCurrency(todaySalesTotal)
+                    : salesCount.toLocaleString()}
                 </div>
               </div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                {isOwner ? 'Store-wide billing ledger' : 'Today’s store revenue'}
+                {isOwner ? 'Store-wide sales today' : 'Sales recorded by your account'}
               </div>
             </div>
 
@@ -315,10 +238,6 @@ export const DashboardPage = () => {
             <div className="kpi-card">
               <div className="kpi-card-top">
                 <span className="kpi-card-lbl">TOTAL PRODUCTS</span>
-                <span className="kpi-trend-pill positive">
-                  <TrendingUp size={11} />
-                  <span>+3.2% ↗</span>
-                </span>
               </div>
               <div className="kpi-card-val-row">
                 <div className="kpi-card-val">
@@ -336,23 +255,6 @@ export const DashboardPage = () => {
                 <span className="kpi-card-lbl">
                   {pendingOrdersCount !== null ? 'PENDING ORDERS' : 'LOW-STOCK ALERTS'}
                 </span>
-                <span
-                  className={`kpi-trend-pill ${
-                    (pendingOrdersCount ?? lowStockCount) > 0 ? 'negative' : 'positive'
-                  }`}
-                >
-                  {(pendingOrdersCount ?? lowStockCount) > 0 ? (
-                    <>
-                      <TrendingDown size={11} />
-                      <span>-10.8% ↘</span>
-                    </>
-                  ) : (
-                    <>
-                      <TrendingUp size={11} />
-                      <span>0.0% —</span>
-                    </>
-                  )}
-                </span>
               </div>
               <div className="kpi-card-val-row">
                 <div className="kpi-card-val">
@@ -367,40 +269,15 @@ export const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Row 2: Sales Report Dual-Stacked Bar Chart */}
-          <div className="dashboard-chart-card">
-            <div className="chart-card-header">
-              <div className="chart-title-group">
-                <span className="chart-card-title">Sales Report</span>
-                <span className="chart-card-val">$300k</span>
-                <span className="chart-card-sub">Dual-stream monthly revenue &amp; units volume</span>
-              </div>
-              <div className="chart-card-controls">
-                <div className="chart-legend-row">
-                  <span>
-                    <span className="legend-dot sales" /> Sales
-                  </span>
-                  <span>
-                    <span className="legend-dot units" /> Units
-                  </span>
-                </div>
-                <select className="chart-pill-select" defaultValue="2025" aria-label="Select Year">
-                  <option value="2025">Year 2025</option>
-                  <option value="2024">Year 2024</option>
-                </select>
-              </div>
-            </div>
-
-            <StackedBarChart totalVal="$300k" />
-          </div>
-
           {/* Row 3: Recent Orders Table Card */}
           <div className="dashboard-table-card" id="dashboard-table-section">
             <div className="table-card-header">
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                   <span className="table-card-title">
-                    {activeTableTab === 'orders' ? 'Recent Orders' : 'Low-Stock Watchlist'}
+                    {activeTableTab === 'orders'
+                      ? canCreatePurchaseOrder ? 'Recent Orders' : 'Recent Sales'
+                      : 'Low-Stock Watchlist'}
                   </span>
                   {/* Table Tab Buttons */}
                   <div
@@ -425,7 +302,7 @@ export const DashboardPage = () => {
                         transition: 'all var(--transition-fast)',
                       }}
                     >
-                      Orders
+                      {canCreatePurchaseOrder ? 'Orders' : 'Sales'}
                     </button>
                     <button
                       onClick={() => setActiveTableTab('lowstock')}
@@ -447,7 +324,9 @@ export const DashboardPage = () => {
                 </div>
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
                   {activeTableTab === 'orders'
-                    ? 'Recent supplier purchase orders & procurement fulfillment'
+                    ? canCreatePurchaseOrder
+                      ? 'Recent supplier purchase orders & procurement fulfillment'
+                      : 'Recent sales recorded by your account'
                     : 'Inventory items currently breaching minimum safe stock quantities'}
                 </p>
               </div>
@@ -464,7 +343,6 @@ export const DashboardPage = () => {
                   className="widget-manage-link"
                 >
                   <span>View All</span>
-                  <ExternalLink size={12} />
                 </Link>
               </div>
             </div>
@@ -488,18 +366,6 @@ export const DashboardPage = () => {
                     <table className="data-table">
                       <thead>
                         <tr>
-                          <th style={{ width: '40px', textAlign: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={
-                                selectedRowIds.size === recentOrders.length &&
-                                recentOrders.length > 0
-                              }
-                              onChange={() => toggleSelectAll(recentOrders)}
-                              aria-label="Select all rows"
-                              style={{ cursor: 'pointer', accentColor: '#8CB843' }}
-                            />
-                          </th>
                           <th>Order #</th>
                           <th>Supplier / Vendor</th>
                           <th>Expected Date</th>
@@ -509,24 +375,8 @@ export const DashboardPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {recentOrders.map((order) => {
-                          const isSelected = selectedRowIds.has(order.id);
-                          return (
-                            <tr
-                              key={order.id}
-                              style={{
-                                backgroundColor: isSelected ? 'rgba(140, 184, 67, 0.08)' : undefined,
-                              }}
-                            >
-                              <td style={{ textAlign: 'center' }}>
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={() => toggleSelectRow(order.id)}
-                                  aria-label={`Select order ${order.id}`}
-                                  style={{ cursor: 'pointer', accentColor: '#8CB843' }}
-                                />
-                              </td>
+                        {recentOrders.map((order) => (
+                            <tr key={order.id}>
                               <td style={{ fontWeight: 700 }}>
                                 <Link
                                   to={`/purchase-orders/${order.id}`}
@@ -553,8 +403,7 @@ export const DashboardPage = () => {
                                 </Link>
                               </td>
                             </tr>
-                          );
-                        })}
+                          ))}
                       </tbody>
                     </table>
                   )
@@ -575,17 +424,6 @@ export const DashboardPage = () => {
                     <table className="data-table">
                       <thead>
                         <tr>
-                          <th style={{ width: '40px', textAlign: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={
-                                selectedRowIds.size === recentSales.length && recentSales.length > 0
-                              }
-                              onChange={() => toggleSelectAll(recentSales)}
-                              aria-label="Select all rows"
-                              style={{ cursor: 'pointer', accentColor: '#8CB843' }}
-                            />
-                          </th>
                           <th>Bill Number</th>
                           <th>Time</th>
                           <th>Items</th>
@@ -594,24 +432,8 @@ export const DashboardPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {recentSales.map((sale) => {
-                          const isSelected = selectedRowIds.has(sale.id);
-                          return (
-                            <tr
-                              key={sale.id}
-                              style={{
-                                backgroundColor: isSelected ? 'rgba(140, 184, 67, 0.08)' : undefined,
-                              }}
-                            >
-                              <td style={{ textAlign: 'center' }}>
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={() => toggleSelectRow(sale.id)}
-                                  aria-label={`Select sale ${sale.id}`}
-                                  style={{ cursor: 'pointer', accentColor: '#8CB843' }}
-                                />
-                              </td>
+                        {recentSales.map((sale) => (
+                            <tr key={sale.id}>
                               <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
                                 {sale.bill_number}
                               </td>
@@ -628,14 +450,13 @@ export const DashboardPage = () => {
                                   color: 'var(--text-main)',
                                 }}
                               >
-                                ${Number(sale.total_amount).toFixed(2)}
+                                {formatCurrency(sale.total_amount)}
                               </td>
                               <td style={{ textAlign: 'right' }}>
                                 <Badge variant="success">Complete</Badge>
                               </td>
                             </tr>
-                          );
-                        })}
+                          ))}
                       </tbody>
                     </table>
                   )
@@ -697,50 +518,51 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* ====================================================================
-            SIDE COLUMN (RIGHT): TOP CATEGORIES, RADIAL GAUGE, INVENTORY VALUATION
-            ==================================================================== */}
-        <div className="dashboard-side-col">
-          {/* Card 1: Top Categories Overlapping Bubbles */}
-          <div className="dashboard-widget-card">
-            <div className="widget-card-header">
-              <span className="widget-card-title">Top Categories</span>
-              <Link to="/categories" className="widget-manage-link">
-                <span>View</span>
-                <ExternalLink size={12} />
-              </Link>
-            </div>
-            <CategoryBubbles categories={categoriesList} />
-          </div>
-
-          {/* Card 2: Fulfillment Rate / Growth Semicircular Radial Gauge */}
-          <div className="dashboard-widget-card">
-            <div className="widget-card-header">
-              <span className="widget-card-title">Fulfillment Rate</span>
-              <span className="kpi-trend-pill positive">
-                <TrendingUp size={11} />
-                <span>+4.8%</span>
-              </span>
-            </div>
-            <FulfillmentGauge value={9500} trend={4.8} />
-          </div>
-
-          {/* Card 3: Inventory Valuation Status Breakdown */}
-          <div className="dashboard-widget-card">
-            <div className="widget-card-header">
-              <span className="widget-card-title">Inventory Valuation</span>
-              <Link to={isOwner ? '/reports' : '/products'} className="widget-manage-link">
-                <span>Manage</span>
-                <ExternalLink size={12} />
-              </Link>
-            </div>
-            <ValuationBreakdown
-              inStockCount={Math.max(0, productCount - lowStockCount)}
-              lowStockCount={lowStockCount}
-              outOfStockCount={Math.max(0, Math.floor(lowStockCount * 0.25))}
-            />
-          </div>
-        </div>
+        {isOwner && (
+          <aside className="dashboard-side-col">
+            <section className="dashboard-widget-card">
+              <div className="widget-card-header">
+                <span className="widget-card-title">Sales by day</span>
+                <Link to="/reports" className="widget-manage-link">View report</Link>
+              </div>
+              {salesTrend.length === 0 ? (
+                <p className="dashboard-empty-state">No sales were recorded in the last seven days.</p>
+              ) : (
+                <div className="dashboard-sales-trend">
+                  {salesTrend.map((item) => (
+                    <div className="dashboard-sales-trend-row" key={item.date}>
+                      <span>{new Date(`${item.date}T00:00:00`).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                      })}</span>
+                      <div className="dashboard-sales-trend-track" aria-hidden="true">
+                        <div
+                          className="dashboard-sales-trend-bar"
+                          style={{
+                            width: `${(Number(item.total_sales || 0) / maxDailySales) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <strong>{formatCurrency(item.total_sales)}</strong>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+            <section className="dashboard-widget-card">
+              <div className="widget-card-header">
+                <span className="widget-card-title">Inventory valuation</span>
+                <Link to="/reports" className="widget-manage-link">View report</Link>
+              </div>
+              <strong className="dashboard-valuation-total">
+                {loading || valuationAtCost === null
+                  ? '...'
+                  : formatCurrency(valuationAtCost)}
+              </strong>
+              <p className="dashboard-empty-state">Current stock value at cost</p>
+            </section>
+          </aside>
+        )}
       </div>
     </div>
   );

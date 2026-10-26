@@ -5,8 +5,10 @@ from backend.models.purchase_orders import PurchaseOrder
 from backend.models.stock_movement import StockMovement
 from backend.models.supplier import Supplier
 from backend.models.user import User
+from backend import seed
 from backend.utils.jwt_handler import tokenizing
 from backend.utils.password import verify_password
+from werkzeug.security import generate_password_hash
 
 
 def api_request(api, method, path, role=None, json=None, token=None):
@@ -20,25 +22,60 @@ def api_request(api, method, path, role=None, json=None, token=None):
 
 
 def test_register_creates_staff_and_hashes_password(api):
-    response = api_request(
-        api,
-        "post",
-        "/api/auth/register",
-        json={
-            "name": "New Staff",
-            "email": "new@example.test",
-            "password": "Password123",
-            "role": "Owner",
-        },
-    )
+    for role in ("Owner", "Manager"):
+        response = api_request(
+            api,
+            "post",
+            "/api/auth/register",
+            json={
+                "name": f"New {role}",
+                "email": f"new-{role.lower()}@example.test",
+                "password": "Password123",
+                "role": role,
+            },
+        )
+        assert response.status_code == 201
 
-    assert response.status_code == 201
     with api["sessions"]() as db:
-        user = db.query(User).filter_by(email="new@example.test").one()
-        assert user.role == "Staff"
-        assert user.password.startswith("scrypt:")
-        assert verify_password(user.password, "Password123")
-        assert user.password != "Password123"
+        users = (
+            db.query(User)
+            .filter(User.email.in_(("new-owner@example.test", "new-manager@example.test")))
+            .all()
+        )
+        assert len(users) == 2
+        for user in users:
+            assert user.role == "Staff"
+            assert user.password.startswith("$2")
+            assert verify_password(user.password, "Password123")
+            assert user.password != "Password123"
+
+
+def test_legacy_scrypt_password_hashes_remain_valid():
+    legacy_hash = generate_password_hash("LegacyPassword123", method="scrypt")
+
+    assert verify_password(legacy_hash, "LegacyPassword123")
+    assert not verify_password(legacy_hash, "WrongPassword123")
+
+
+def test_demo_inventory_seed_is_ledger_based_and_idempotent(api, monkeypatch):
+    monkeypatch.setattr(seed, "SessionLocal", api["sessions"])
+
+    seed.seed_inventory()
+    seed.seed_inventory()
+
+    with api["sessions"]() as db:
+        assert db.query(Category).count() == 3
+        assert db.query(Product).count() == 4
+        assert db.query(Supplier).count() == 1
+        assert db.query(StockMovement).count() == 3
+        seeded_prices = {
+            product.sku: (str(product.cost_price), str(product.selling_price))
+            for product in db.query(Product).all()
+        }
+        assert seeded_prices["BEV-WATER-001"] == ("12.00", "20.00")
+        assert seeded_prices["BEV-COFFEE-001"] == ("180.00", "320.00")
+        assert seeded_prices["PAN-PASTA-001"] == ("45.00", "80.00")
+        assert seeded_prices["ACC-BAG-001"] == ("25.00", "50.00")
 
 
 def test_login_returns_access_and_refresh_tokens(api):
@@ -61,6 +98,19 @@ def test_login_returns_access_and_refresh_tokens(api):
     assert body["access_token"] == body["token"]
     assert body["refresh_token"]
     assert body["access_token"] != body["refresh_token"]
+
+    profile = api_request(
+        api,
+        "get",
+        "/api/auth/me",
+        token=body["access_token"],
+    )
+    assert profile.status_code == 200
+    assert profile.get_json() == {
+        "name": "Staff",
+        "email": "staff@example.test",
+        "role": "Staff",
+    }
 
 
 def test_refresh_rotates_refresh_token_and_rejects_reuse(api):
@@ -143,11 +193,19 @@ def test_role_permissions_for_catalog_and_supplier_routes(api):
         "/api/categories",
         role="Manager",
     )
+    category_id = manager_write.get_json()["id"]
+    staff_category_detail = api_request(
+        api,
+        "get",
+        f"/api/categories/{category_id}",
+        role="Staff",
+    )
 
     assert staff_write.status_code == 403
     assert manager_write.status_code == 201
     assert staff_supplier_list.status_code == 403
     assert manager_category_list.status_code == 200
+    assert staff_category_detail.status_code == 403
 
 
 def test_sale_updates_stock_ledger_and_blocks_overselling(api):
@@ -242,6 +300,12 @@ def test_purchase_order_partial_receipt_and_over_receipt(api):
         order_id = order.id
         line_id = line.id
 
+    manager_approval = api_request(
+        api,
+        "post",
+        f"/api/purchase-orders/{order_id}/approve",
+        role="Manager",
+    )
     approval = api_request(
         api,
         "post",
@@ -263,6 +327,7 @@ def test_purchase_order_partial_receipt_and_over_receipt(api):
         json={"items": [{"item_id": line_id, "quantity": 3}]},
     )
 
+    assert manager_approval.status_code == 403
     assert approval.status_code == 200
     assert receipt.status_code == 200
     assert receipt.get_json()["status"] == "partially_received"
