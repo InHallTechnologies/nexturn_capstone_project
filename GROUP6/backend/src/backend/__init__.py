@@ -3,9 +3,15 @@ from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 import datetime
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 app = Flask(__name__)
-db = MongoClient("mongodb+srv://jira:EQeauM0LDROMMIUT@cluster0.gtfzanv.mongodb.net/")["tracker"]
+
+db_url = os.getenv("MONGO_URL")
+client = MongoClient(db_url)
+db = client["tracker"]
 
 FLOW = {
     "Backlog": ["To Do"],
