@@ -1,0 +1,15 @@
+[project]
+name = "northstar-api"
+version = "1.0.0"
+description = "Freelance workspace API backed by MongoDB"
+requires-python = ">=3.12"
+dependencies = [
+  "Flask==3.1.0",
+  "Flask-Cors==5.0.0",
+  "Flask-JWT-Extended==4.7.1",
+  "pymongo==4.10.1",
+  "python-dotenv==1.0.1",
+]
+
+[tool.uv]
+package = false
