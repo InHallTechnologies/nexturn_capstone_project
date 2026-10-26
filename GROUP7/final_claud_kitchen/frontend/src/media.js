@@ -10,6 +10,7 @@ const photographs = {
   "photo-1606313564200-e75d5e30476c": "brownie-v2",
 };
 
+
 export function localFoodImage(src) {
   if (!src) return src;
   try {
