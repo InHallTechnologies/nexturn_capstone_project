@@ -24,7 +24,6 @@ def invoice_items_for_owner(owner_id):
     client_ids = [item["id"] for item in collection("clients").find({"owner_id": {"$in": identifier_values(owner_id)}})]
     return list(collection("invoices").find({"client_id": {"$in": client_ids}}))
 def close_project_if_fully_paid(project_id):
-    """Close a completed project only after every project invoice is settled."""
     if not project_id:
         return
     project = get("projects", project_id)
