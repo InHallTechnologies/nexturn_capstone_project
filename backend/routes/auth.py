@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Blueprint, request
 from flask_jwt_extended import (
     create_access_token,
@@ -63,7 +63,7 @@ def refresh():
     old_token = get_jwt()
     insert(
         "token_blocklist",
-        {"jti": old_token["jti"], "created_at": datetime.utcnow()},
+        {"jti": old_token["jti"], "created_at": datetime.now(timezone.utc)},
     )
     user = current_user()
     if not user:
@@ -82,7 +82,7 @@ def refresh():
 def logout():
     token = get_jwt()
     if not collection("token_blocklist").find_one({"jti": token["jti"]}):
-        insert("token_blocklist", {"jti": token["jti"], "created_at": datetime.utcnow()})
+        insert("token_blocklist", {"jti": token["jti"], "created_at": datetime.now(timezone.utc)})
     data = request.get_json() or {}
     refresh_token = data.get("refresh_token")
     if refresh_token:
@@ -92,7 +92,7 @@ def logout():
             if not collection("token_blocklist").find_one({"jti": refresh_jti}):
                 insert(
                     "token_blocklist",
-                    {"jti": refresh_jti, "created_at": datetime.utcnow()},
+                    {"jti": refresh_jti, "created_at": datetime.now(timezone.utc)},
                 )
         except Exception:
             return error("Invalid refresh token", 401)
