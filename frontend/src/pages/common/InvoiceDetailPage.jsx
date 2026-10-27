@@ -12,6 +12,13 @@ import {
 } from "../../components/common/Primitives";
 import "../../styles/invoice.css";
 
+function remainingBalance(total, paid) {
+  return Math.max(
+    0,
+    Math.round((Number(total || 0) - Number(paid || 0) + Number.EPSILON) * 100) / 100,
+  );
+}
+
 function InvoiceEditor({ invoice, onClose, onSaved }) {
   const [lines, setLines] = useState(
     invoice.line_items.map((item) => ({
@@ -195,7 +202,7 @@ function PaymentDialog({ invoice, onClose, onSaved }) {
     }
   }
 
-  const balance = Number(invoice.total) - Number(invoice.amount_paid);
+  const balance = remainingBalance(invoice.total, invoice.amount_paid);
 
   return (
     <div className="dialog-backdrop">
@@ -220,7 +227,7 @@ function PaymentDialog({ invoice, onClose, onSaved }) {
               name="amount"
               type="number"
               min="0.01"
-              max={balance}
+              max={balance.toFixed(2)}
               step="0.01"
               required
             />
@@ -237,10 +244,8 @@ function PaymentDialog({ invoice, onClose, onSaved }) {
           <label>
             Method
             <select name="method">
-              <option>Bank transfer</option>
-              <option>Card</option>
-              <option>Cash</option>
-              <option>Other</option>
+              <option value="cash">Cash</option>
+              <option value="card">Card</option>
             </select>
           </label>
           <label>
@@ -269,10 +274,7 @@ export default function InvoiceDetailPage({ portal = false }) {
     );
 
   const data = invoice.data;
-  const balance = Math.max(
-    0,
-    Number(data.total || 0) - Number(data.amount_paid || 0),
-  );
+  const balance = remainingBalance(data.total, data.amount_paid);
 
   async function pay(event) {
     event.preventDefault();
@@ -410,7 +412,7 @@ export default function InvoiceDetailPage({ portal = false }) {
                   name="amount"
                   type="number"
                   min="0.01"
-                  max={balance}
+                  max={balance.toFixed(2)}
                   step="0.01"
                   defaultValue={balance.toFixed(2)}
                   required
