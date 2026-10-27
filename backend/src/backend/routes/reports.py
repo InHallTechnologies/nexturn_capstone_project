@@ -236,8 +236,8 @@ def sales_by_day_report(current_user_email):
                 total_sales,
             )
             .filter(
-                func.date(Sale.created_at) >= start_date.isoformat(),
-                func.date(Sale.created_at) <= end_date.isoformat(),
+                func.date(Sale.created_at) >= start_date,
+                func.date(Sale.created_at) <= end_date,
             )
             .group_by(func.date(Sale.created_at))
         )

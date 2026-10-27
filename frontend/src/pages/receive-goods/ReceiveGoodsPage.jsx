@@ -101,13 +101,19 @@ export const ReceiveGoodsPage = () => {
   useEffect(() => {
     if (selectedPoId) {
       loadOrderDetails(selectedPoId);
-    } else if (eligibleOrders.length > 0 && !selectedOrder) {
+    } else {
+      setSelectedOrder(null);
+      setReceivingInputs({});
+    }
+  }, [selectedPoId, loadOrderDetails]);
+
+  useEffect(() => {
+    if (!selectedPoId && eligibleOrders.length > 0) {
       // Auto-select first eligible order
       const firstId = eligibleOrders[0].id.toString();
       setSearchParams({ po_id: firstId });
-      loadOrderDetails(firstId);
     }
-  }, [selectedPoId, eligibleOrders, loadOrderDetails, selectedOrder, setSearchParams]);
+  }, [selectedPoId, eligibleOrders, setSearchParams]);
 
   const handleInputChange = (itemId, val, maxRemaining) => {
     const num = val === '' ? '' : parseInt(val, 10);
