@@ -1,4 +1,5 @@
-﻿from datetime import date, datetime
+from datetime import date, datetime
+from datetime import timezone
 from time import sleep
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
@@ -133,7 +134,7 @@ def project_posts():
             hourly_rate = positive_rate(data.get("hourly_rate"))
         except Exception:
             return error("A valid positive hourly_rate is required", 400)
-        post = insert("project_posts", {"client_user_id": user["id"], "title": title, "description": description, "hourly_rate": hourly_rate, "contact_details": contact, "created_at": datetime.utcnow()})
+        post = insert("project_posts", {"client_user_id": user["id"], "title": title, "description": description, "hourly_rate": hourly_rate, "contact_details": contact, "created_at": datetime.now(timezone.utc)})
         try:
             code = issue_code(post)
         except Exception:
@@ -242,5 +243,3 @@ def pay_invoice(invoice_id):
         if project and project.get("workflow_status") == "completed" and project_bills and all(decimal(bill.get("amount_paid", 0)) >= decimal(bill.get("total", 0)) for bill in project_bills):
             update("projects", project_id, {"workflow_status": "closed", "status": "closed"})
     return {"message": "Payment recorded", "payment": output(payment), "invoice": invoice_payload(updated)}, 201
-
-
