@@ -1,0 +1,49 @@
+
+{
+  "modules": [
+    {
+      "title": "Python Basics",
+      "description": "Introduction to Python",
+      "order": 1,
+      "lessons": [
+        {
+          "title": "Variables",
+          "content": "Learn Python variables and data types.",
+          "order": 1
+        },
+        {
+          "title": "Conditions",
+          "content": "Learn if, elif, and else.",
+          "order": 2
+        }
+      ],
+      "quizzes": [
+        {
+          "title": "Python Basics Quiz",
+          "description": "Test your knowledge",
+          "time_limit_minutes": 10,
+          "max_attempts": 2,
+          "lesson_order": 1,
+          "questions": [
+            {
+              "question_text": "Which keyword defines a function?",
+              "question_type": "mcq",
+              "options": ["func", "def", "function", "method"],
+              "correct_answers": ["def"],
+              "order": 1,
+              "points": 1
+            },
+            {
+              "question_text": "Python is interpreted.",
+              "question_type": "true_false",
+              "options": ["True", "False"],
+              "correct_answers": ["True"],
+              "order": 2,
+              "points": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
