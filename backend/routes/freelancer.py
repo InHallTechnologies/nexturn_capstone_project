@@ -24,6 +24,7 @@ def invoice_items_for_owner(owner_id):
     client_ids = [item["id"] for item in collection("clients").find({"owner_id": {"$in": identifier_values(owner_id)}})]
     return list(collection("invoices").find({"client_id": {"$in": client_ids}}))
 def close_project_if_fully_paid(project_id):
+    """Close a completed project only after every project invoice is settled."""
     if not project_id:
         return
     project = get("projects", project_id)
@@ -443,12 +444,15 @@ def add_payment(invoice_id):
         paid_on = date.fromisoformat(data.get("paid_on", date.today().isoformat())).isoformat()
     except Exception:
         return error("Valid amount and paid_on date are required", 400)
+    method = str(data.get("method", "")).strip().lower()
+    if method not in {"cash", "card"}:
+        return error("method must be cash or card", 400)
     balance = money(decimal(invoice["total"]) - decimal(invoice["amount_paid"]))
     if amount <= 0:
         return error("Payment must be greater than zero", 400)
     if amount > balance:
         return error("Payment exceeds the remaining balance", 409)
-    payment = {"id": new_id(), "invoice_id": invoice_id, "amount": amount, "paid_on": paid_on, "method": data.get("method", "Other"), "reference": data.get("reference", "")}
+    payment = {"id": new_id(), "invoice_id": invoice_id, "amount": amount, "paid_on": paid_on, "method": method.title(), "reference": data.get("reference", "")}
     invoice["payments"] = invoice.get("payments", []) + [payment]
     invoice["amount_paid"] = money(decimal(invoice["amount_paid"]) + decimal(amount))
     updated = update("invoices", invoice_id, {"payments": invoice["payments"], "amount_paid": invoice["amount_paid"]})
