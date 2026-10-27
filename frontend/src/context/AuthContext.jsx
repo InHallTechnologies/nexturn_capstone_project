@@ -20,8 +20,6 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       return userData;
     } catch {
-      // If getMe fails, token may be expired or invalid.
-      // Let the axios interceptor attempt refresh if possible.
       const refreshToken = localStorage.getItem('stockpilot_refresh_token');
       if (refreshToken) {
         try {
@@ -52,7 +50,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     fetchCurrentUser();
 
-    // Listen for custom logout events dispatched by the axios interceptor
     const handleAuthExpired = () => {
       setUser(null);
     };
@@ -96,7 +93,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Centralized Role and Permission Utilities
   const role = user?.role;
   const isOwner = role === 'Owner';
   const isManager = role === 'Manager';
@@ -106,17 +102,16 @@ export const AuthProvider = ({ children }) => {
     return Boolean(role && allowedRoles.includes(role));
   };
 
-  // Capabilities
   const canManageProducts = isOwner || isManager;
   const canManageSuppliers = isOwner || isManager;
   const canManageCategories = isOwner || isManager;
   const canCreatePurchaseOrder = isOwner || isManager;
-  const canApprovePurchaseOrder = isOwner; // Only Owner
+  const canApprovePurchaseOrder = isOwner;
   const canReceiveGoods = isOwner || isManager;
   const canAdjustStock = isOwner || isManager;
   const canViewStockMovements = isOwner || isManager;
-  const canViewReports = isOwner || isManager; // Low-stock report is Owner/Manager
-  const canViewFinancialReports = isOwner; // Valuation, Ledger Balance, Sales-by-day
+  const canViewReports = isOwner || isManager;
+  const canViewFinancialReports = isOwner;
   const canRecordSales = isOwner || isManager || isStaff;
 
   const value = {

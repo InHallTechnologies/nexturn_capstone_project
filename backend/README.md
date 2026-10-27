@@ -1,47 +1,79 @@
 # Retail Inventory API
 
-Flask API using SQLAlchemy and PostgreSQL. Routes are registered from
-`src/backend/main.py` and use the `/api` prefix.
-Product prices, purchase costs, sales amounts, and valuation reports use Indian
-rupees (INR).
+Flask API for authentication, product and supplier management, purchase orders,
+receiving, sales, stock movements, and reports. Routes are registered in
+`src/backend/main.py` and use the `/api` prefix. SQLAlchemy provides database
+access; PostgreSQL is configured with `DATABASE_URL`.
 
-## Setup
+## Requirements and configuration
 
-Use Python 3.11 or later and `uv`. Copy `.env.example` to `.env`, replace all
-placeholders, and set `DATABASE_URL` to the PostgreSQL connection string used by
-your environment. `SECRET_KEY` must be a unique random value of at least 32
-bytes. Set the three `*_INITIAL_PASSWORD` variables before creating the initial
-Owner, Manager, and Staff seed accounts.
+- Python 3.11 or later
+- `uv`
+- PostgreSQL reachable from the backend process
+
+Copy `.env.example` to `.env`. Configure `DATABASE_URL`, a unique
+`SECRET_KEY` of at least 32 bytes, and unique values for
+`OWNER_INITIAL_PASSWORD`, `MANAGER_INITIAL_PASSWORD`, and
+`STAFF_INITIAL_PASSWORD`.
+
+## Local setup
+
+From the `backend` directory:
 
 ```powershell
 uv sync
+Copy-Item .env.example .env
 uv run python -m backend.create_tables
 uv run python -m backend.seed
 uv run python -m backend.main
 ```
 
-New passwords are bcrypt hashes; existing Werkzeug hashes remain verifiable so
-previously created accounts can continue to log in. Registration always
-assigns the Staff role. The seed script creates the three role accounts and, only when the inventory
-tables are empty, a small idempotent demo catalog with opening stock movements.
-
-## API and authorization
-
-| Resource | Methods and routes | Access |
-| --- | --- | --- |
-| Authentication | `POST /api/auth/register`, `/login`, `/refresh`, `/logout`; `GET /api/auth/me` | Public auth routes; current-user requires access token |
-| Products | `GET /api/products`, `/api/products/<id>`; `POST`, `PUT`, `DELETE` | All roles read; Owner/Manager write |
-| Categories | CRUD `/api/categories` | Owner/Manager |
-| Suppliers | CRUD `/api/suppliers`; `GET /api/suppliers/<id>/purchase-orders` | Owner/Manager |
-| Purchase orders | CRUD `/api/purchase-orders`; `POST /<id>/receive`, `/<id>/cancel` | Owner/Manager |
-| Purchase approval | `POST /api/purchase-orders/<id>/approve` | Owner |
-| Sales | `GET`, `POST /api/sales`; `GET /api/sales/<id>` | All roles; non-Owners are limited to their own sales |
-| Stock movements | `GET /api/stock-movements`; `POST /api/stock-movements/adjustments` | Owner/Manager |
-| Reports | `GET /api/reports/low-stock` | Owner/Manager |
-| Owner reports | `GET /api/reports/valuation`, `/ledger-balance`, `/sales-by-day` | Owner |
-
-## Tests
+Run the API test suite with:
 
 ```powershell
 uv run --group dev pytest
 ```
+
+The seed command creates the three role accounts and sample catalog,
+suppliers, purchase orders, sales, and inventory movements. Seeding is
+idempotent: existing accounts and records are not overwritten. New seed
+account passwords are required from environment variables and are stored as
+password hashes. Public registration always assigns the Staff role.
+
+## API and authorization
+
+All paths below are relative to `/api`.
+
+| Resource | Methods and routes | Access |
+| --- | --- | --- |
+| Authentication | `POST /auth/register`, `/login`, `/refresh`, `/logout`; `GET /auth/me` | Registration/login/refresh are public; current-user and logout require an access token |
+| Products | `GET /products`, `/products/<id>`; `POST /products`; `PUT`, `DELETE /products/<id>` | All roles can read; Owner/Manager can write |
+| Categories | CRUD `/categories` | Owner/Manager |
+| Suppliers | CRUD `/suppliers`; `GET /suppliers/<id>/purchase-orders` | Owner/Manager |
+| Purchase orders | CRUD `/purchase-orders`; `POST /purchase-orders/<id>/receive`, `/cancel` | Owner/Manager |
+| Purchase-order approval | `POST /purchase-orders/<id>/approve` | Owner |
+| Sales | `GET`, `POST /sales`; `GET /sales/<id>` | All roles; non-Owners can access only sales they created |
+| Stock movements | `GET /stock-movements`; `POST /stock-movements/adjustments` | Owner/Manager |
+| Reports | `GET /reports/low-stock` | Owner/Manager |
+| Owner reports | `GET /reports/valuation`, `/ledger-balance`, `/sales-by-day` | Owner |
+
+List and report endpoints support pagination; where implemented, sorting and
+filtering are also available. Invalid inputs return client errors, missing
+records return not-found responses, and disallowed role or workflow actions
+are rejected.
+
+## Business rules
+
+- Stock is calculated by summing signed `StockMovement` quantities per product.
+- Sales reject requests that exceed stock and store the sale, sale items, and
+  stock deductions together.
+- Purchase orders begin as drafts; only Owners can approve them. Receiving
+  can be partial but cannot exceed the remaining ordered quantities.
+- Adjustments require a reason and cannot make stock negative.
+- Passwords are hashed. JWT access and refresh tokens are rotated/revoked
+  through the authentication endpoints and token blocklist.
+- Product and transaction prices are represented as decimal values and
+  presented as INR.
+
+See the [root README](../README.md) for Docker Compose deployment and the
+[data model](../docs/data-model.md) for entity relationships.

@@ -21,7 +21,6 @@ export const SuppliersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Form Modal
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [formData, setFormData] = useState({
@@ -34,12 +33,10 @@ export const SuppliersPage = () => {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Detail & History Modal
   const [viewingSupplier, setViewingSupplier] = useState(null);
   const [purchaseHistory, setPurchaseHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
-  // Delete Dialog
   const [deletingSupplier, setDeletingSupplier] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -318,7 +315,6 @@ export const SuppliersPage = () => {
         onEmptyAction={handleOpenCreate}
       />
 
-      {/* Create / Edit Supplier Modal */}
       <Modal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
@@ -420,7 +416,6 @@ export const SuppliersPage = () => {
         </form>
       </Modal>
 
-      {/* Supplier Purchase History Modal */}
       {viewingSupplier && (
         <Modal
           isOpen={Boolean(viewingSupplier)}
@@ -435,7 +430,6 @@ export const SuppliersPage = () => {
           }
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {/* Contact details card */}
             <div
               style={{
                 display: 'grid',
@@ -514,7 +508,6 @@ export const SuppliersPage = () => {
         </Modal>
       )}
 
-      {/* Delete Confirm */}
       <ConfirmDialog
         isOpen={Boolean(deletingSupplier)}
         onClose={() => setDeletingSupplier(null)}

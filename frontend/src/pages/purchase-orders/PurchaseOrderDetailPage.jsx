@@ -31,7 +31,6 @@ export const PurchaseOrderDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Dialogs
   const [isApproveOpen, setIsApproveOpen] = useState(false);
   const [approving, setApproving] = useState(false);
 
@@ -48,7 +47,6 @@ export const PurchaseOrderDetailPage = () => {
       const orderData = await purchaseOrdersApi.getPurchaseOrder(id);
       setOrder(orderData);
 
-      // Load supplier details
       if (orderData.supplier_id) {
         try {
           const sup = await suppliersApi.getSupplier(orderData.supplier_id);
@@ -58,7 +56,6 @@ export const PurchaseOrderDetailPage = () => {
         }
       }
 
-      // Load products for line item descriptions
       const prodRes = await productsApi.listProducts({ per_page: 100 });
       const pMap = {};
       (prodRes.items || []).forEach((p) => {
@@ -177,7 +174,6 @@ export const PurchaseOrderDetailPage = () => {
         </Button>
       </div>
 
-      {/* Header Banner */}
       <div className="card" style={{ padding: '1.5rem' }}>
         <div
           style={{
@@ -202,14 +198,12 @@ export const PurchaseOrderDetailPage = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {/* Owner Approval Button */}
             {order.status === 'draft' && isOwner && (
               <Button variant="primary" onClick={() => setIsApproveOpen(true)} icon={CheckCircle}>
                 Approve Purchase Order
               </Button>
             )}
 
-            {/* Goods Receipt Action */}
             {(order.status === 'approved' || order.status === 'partially_received') && (
               <Button
                 variant="primary"
@@ -220,14 +214,12 @@ export const PurchaseOrderDetailPage = () => {
               </Button>
             )}
 
-            {/* Cancel Action */}
             {(order.status === 'draft' || order.status === 'approved') && (
               <Button variant="danger" onClick={() => setIsCancelOpen(true)} icon={XCircle}>
                 Cancel Order
               </Button>
             )}
 
-            {/* Delete Action (Draft only) */}
             {order.status === 'draft' && (
               <Button variant="ghost" onClick={() => setIsDeleteOpen(true)} icon={Trash2}>
                 Delete Draft
@@ -236,7 +228,6 @@ export const PurchaseOrderDetailPage = () => {
           </div>
         </div>
 
-        {/* Supplier & Delivery Info Cards */}
         <div
           style={{
             display: 'grid',
@@ -307,7 +298,6 @@ export const PurchaseOrderDetailPage = () => {
         </div>
       </div>
 
-      {/* Order Line Items Table */}
       <div className="card" style={{ padding: '1.5rem' }}>
         <h3 style={{ fontSize: '1.05rem', fontWeight: 600, marginBottom: '1rem' }}>
           Line Items ({order.items?.length || 0})
@@ -371,7 +361,6 @@ export const PurchaseOrderDetailPage = () => {
         </div>
       </div>
 
-      {/* Approve Dialog */}
       <ConfirmDialog
         isOpen={isApproveOpen}
         onClose={() => setIsApproveOpen(false)}
@@ -383,7 +372,6 @@ export const PurchaseOrderDetailPage = () => {
         loading={approving}
       />
 
-      {/* Cancel Dialog */}
       <ConfirmDialog
         isOpen={isCancelOpen}
         onClose={() => setIsCancelOpen(false)}
@@ -395,7 +383,6 @@ export const PurchaseOrderDetailPage = () => {
         loading={cancelling}
       />
 
-      {/* Delete Dialog */}
       <ConfirmDialog
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}

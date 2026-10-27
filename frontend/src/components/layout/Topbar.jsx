@@ -41,7 +41,6 @@ export const Topbar = () => {
       </div>
 
       <div className="topbar-right">
-        {/* Pill Search Input */}
         <form onSubmit={handleSearchSubmit} className="topbar-search-pill">
           <Search size={15} className="topbar-search-icon" />
           <input
@@ -53,12 +52,10 @@ export const Topbar = () => {
           />
         </form>
 
-        {/* Role Badge */}
         <Badge variant={getRoleVariant(user?.role)} dot icon={Shield}>
           {user?.role || 'Staff'}
         </Badge>
 
-        {/* User Circular Avatar */}
         <div
           className="topbar-avatar"
           title={`${user?.name || 'User'} (${user?.email || ''})`}

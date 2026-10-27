@@ -15,6 +15,7 @@ import { Button } from '../../components/common/Button';
 import { Badge } from '../../components/common/Badge';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
 import { formatCurrency } from '../../utils/currency';
+import { prefetchRouteData } from '../../api/prefetch';
 
 export const DashboardPage = () => {
   const { user, isOwner, isManager, canCreatePurchaseOrder } = useAuth();
@@ -23,7 +24,6 @@ export const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // KPIs
   const [productCount, setProductCount] = useState(0);
   const [lowStockCount, setLowStockCount] = useState(0);
   const [valuationAtCost, setValuationAtCost] = useState(null);
@@ -32,12 +32,10 @@ export const DashboardPage = () => {
   const [salesTrend, setSalesTrend] = useState([]);
   const [pendingOrdersCount, setPendingOrdersCount] = useState(null);
 
-  // Lists & Categories
   const [lowStockProducts, setLowStockProducts] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
   const [recentSales, setRecentSales] = useState([]);
 
-  // UI States
   const [activeTableTab, setActiveTableTab] = useState('orders');
 
   const loadDashboardData = useCallback(async () => {
@@ -45,64 +43,75 @@ export const DashboardPage = () => {
     setError('');
 
     try {
-      // 1. Products (Accessible to all roles)
-      const productsRes = await productsApi.listProducts({ per_page: 5, low_stock: 'true' });
-      setLowStockProducts(productsRes.items || []);
+      const endDate = new Date();
+      const startDate = new Date(endDate);
+      startDate.setDate(startDate.getDate() - 6);
+      const dateString = (date) => date.toISOString().slice(0, 10);
 
-      const allProductsRes = await productsApi.listProducts({ per_page: 1 });
-      setProductCount(allProductsRes.pagination?.total || 0);
+      const requests = {
+        lowStock: productsApi.listProducts({ per_page: 5, low_stock: 'true' }),
+        products: productsApi.listProducts({ per_page: 1 }),
+        sales: salesApi.listSales({
+          per_page: 6,
+          sort_by: 'created_at',
+          sort_order: 'desc',
+        }),
+      };
 
-      // Low stock count
-      setLowStockCount(productsRes.pagination?.total || 0);
-
-      // 4. Inventory Valuation at Cost (Owner only)
       if (isOwner) {
-        const valuationRes = await reportsApi.getValuationReport({ per_page: 1 });
-        setValuationAtCost(valuationRes.total_value_at_cost);
-
-        const endDate = new Date();
-        const startDate = new Date(endDate);
-        startDate.setDate(startDate.getDate() - 6);
-        const dateString = (date) => date.toISOString().slice(0, 10);
-        const salesTrendRes = await reportsApi.getSalesByDayReport({
+        requests.valuation = reportsApi.getValuationReport({ per_page: 1 });
+        requests.salesTrend = reportsApi.getSalesByDayReport({
           start_date: dateString(startDate),
           end_date: dateString(endDate),
           per_page: 7,
         });
+      }
+
+      if (isOwner || isManager) {
+        requests.draftOrders = purchaseOrdersApi.listPurchaseOrders({
+          status: 'draft',
+          per_page: 1,
+        });
+        requests.approvedOrders = purchaseOrdersApi.listPurchaseOrders({
+          status: 'approved',
+          per_page: 1,
+        });
+        requests.recentOrders = purchaseOrdersApi.listPurchaseOrders({
+          per_page: 6,
+          sort_by: 'created_at',
+          sort_order: 'desc',
+        });
+      }
+
+      const data = Object.fromEntries(
+        await Promise.all(
+          Object.entries(requests).map(async ([key, request]) => [key, await request])
+        )
+      );
+
+      const productsRes = data.lowStock;
+      setLowStockProducts(productsRes.items || []);
+      setProductCount(data.products.pagination?.total || 0);
+      setLowStockCount(productsRes.pagination?.total || 0);
+
+      if (isOwner) {
+        setValuationAtCost(data.valuation.total_value_at_cost);
+        const salesTrendRes = data.salesTrend;
         setSalesTrend(salesTrendRes.items || []);
         const today = dateString(endDate);
         const todayItem = salesTrendRes.items?.find((item) => item.date === today);
         setTodaySalesTotal(todayItem?.total_sales || '0.00');
       }
 
-      // 5. Purchase Orders (Owner / Manager only)
       if (isOwner || isManager) {
-        const pendingRes = await purchaseOrdersApi.listPurchaseOrders({
-          status: 'draft',
-          per_page: 1,
-        });
-        const approvedRes = await purchaseOrdersApi.listPurchaseOrders({
-          status: 'approved',
-          per_page: 1,
-        });
         setPendingOrdersCount(
-          (pendingRes.pagination?.total || 0) + (approvedRes.pagination?.total || 0)
+          (data.draftOrders.pagination?.total || 0) +
+            (data.approvedOrders.pagination?.total || 0)
         );
-
-        const recentOrdersRes = await purchaseOrdersApi.listPurchaseOrders({
-          per_page: 6,
-          sort_by: 'created_at',
-          sort_order: 'desc',
-        });
-        setRecentOrders(recentOrdersRes.items || []);
+        setRecentOrders(data.recentOrders.items || []);
       }
 
-      // Sales list returns the current user's sales except for Owner, who sees all sales.
-      const salesRes = await salesApi.listSales({
-        per_page: 6,
-        sort_by: 'created_at',
-        sort_order: 'desc',
-      });
+      const salesRes = data.sales;
       setRecentSales(salesRes.items || []);
       setSalesCount(salesRes.pagination?.total || 0);
     } catch {
@@ -116,7 +125,6 @@ export const DashboardPage = () => {
     loadDashboardData();
   }, [loadDashboardData]);
 
-  // Order status badge matching Inventra status pills
   const maxDailySales = Math.max(
     1,
     ...salesTrend.map((item) => Number(item.total_sales) || 0)
@@ -140,7 +148,6 @@ export const DashboardPage = () => {
 
   return (
     <div className="page-container">
-      {/* Page Header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">Dashboard</h1>
@@ -149,13 +156,19 @@ export const DashboardPage = () => {
           </p>
         </div>
         <div className="page-actions">
-          <Button variant="primary" onClick={() => navigate('/pos')} icon={ShoppingBag}>
+          <Button
+            variant="primary"
+            onClick={() => navigate('/pos')}
+            onMouseEnter={() => prefetchRouteData('/pos', user?.role)}
+            icon={ShoppingBag}
+          >
             New Sale (POS)
           </Button>
           {canCreatePurchaseOrder && (
             <Button
               variant="secondary"
               onClick={() => navigate('/purchase-orders/new')}
+              onMouseEnter={() => prefetchRouteData('/purchase-orders/new', user?.role)}
               icon={Plus}
             >
               Create Purchase Order
@@ -166,7 +179,6 @@ export const DashboardPage = () => {
 
       {error && <ErrorAlert message={error} onRetry={loadDashboardData} />}
 
-      {/* Critical Reorder Alert Banner */}
       {lowStockCount > 0 && (
         <div
           style={{
@@ -209,15 +221,9 @@ export const DashboardPage = () => {
         </div>
       )}
 
-      {/* 2-Column Dashboard Layout Grid */}
       <div className={`dashboard-layout-grid ${isOwner ? 'with-side-col' : ''}`}>
-        {/* ====================================================================
-            MAIN COLUMN (LEFT): 3 KPI CARDS, SALES REPORT CHART, RECENT ORDERS TABLE
-            ==================================================================== */}
         <div className="dashboard-main-col">
-          {/* Row 1: 3 KPI Cards */}
           <div className="stats-kpi-row">
-            {/* Sales KPI uses the role-appropriate backend response. */}
             <div className="kpi-card">
               <div className="kpi-card-top">
                 <span className="kpi-card-lbl">{isOwner ? 'TODAY’S SALES' : 'MY SALES'}</span>
@@ -234,7 +240,6 @@ export const DashboardPage = () => {
               </div>
             </div>
 
-            {/* KPI 2: Total Products */}
             <div className="kpi-card">
               <div className="kpi-card-top">
                 <span className="kpi-card-lbl">TOTAL PRODUCTS</span>
@@ -249,7 +254,6 @@ export const DashboardPage = () => {
               </div>
             </div>
 
-            {/* KPI 3: Orders / Low Stock */}
             <div className="kpi-card">
               <div className="kpi-card-top">
                 <span className="kpi-card-lbl">
@@ -269,7 +273,6 @@ export const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Row 3: Recent Orders Table Card */}
           <div className="dashboard-table-card" id="dashboard-table-section">
             <div className="table-card-header">
               <div>
@@ -279,7 +282,6 @@ export const DashboardPage = () => {
                       ? canCreatePurchaseOrder ? 'Recent Orders' : 'Recent Sales'
                       : 'Low-Stock Watchlist'}
                   </span>
-                  {/* Table Tab Buttons */}
                   <div
                     style={{
                       display: 'inline-flex',
@@ -347,7 +349,6 @@ export const DashboardPage = () => {
               </div>
             </div>
 
-            {/* TAB 1: RECENT ORDERS */}
             {activeTableTab === 'orders' && (
               <div className="table-container" style={{ margin: 0 }}>
                 {canCreatePurchaseOrder ? (
@@ -380,6 +381,9 @@ export const DashboardPage = () => {
                               <td style={{ fontWeight: 700 }}>
                                 <Link
                                   to={`/purchase-orders/${order.id}`}
+                                  onMouseEnter={() =>
+                                    prefetchRouteData(`/purchase-orders/${order.id}`, user?.role)
+                                  }
                                   style={{ color: 'var(--text-main)' }}
                                 >
                                   PO-{order.id.toString().padStart(4, '0')}
@@ -396,6 +400,9 @@ export const DashboardPage = () => {
                               <td style={{ textAlign: 'right' }}>
                                 <Link
                                   to={`/purchase-orders/${order.id}`}
+                                  onMouseEnter={() =>
+                                    prefetchRouteData(`/purchase-orders/${order.id}`, user?.role)
+                                  }
                                   className="btn btn-ghost btn-sm"
                                   style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
                                 >
@@ -408,7 +415,6 @@ export const DashboardPage = () => {
                     </table>
                   )
                 ) : (
-                  /* Staff view: Recent Sales Transactions */
                   recentSales.length === 0 ? (
                     <div
                       style={{
@@ -464,7 +470,6 @@ export const DashboardPage = () => {
               </div>
             )}
 
-            {/* TAB 2: LOW STOCK WATCHLIST */}
             {activeTableTab === 'lowstock' && (
               <div className="table-container" style={{ margin: 0 }}>
                 {lowStockProducts.length === 0 ? (

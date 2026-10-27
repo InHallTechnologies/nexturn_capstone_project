@@ -20,7 +20,6 @@ def validate_purchase_order(data):
     status = data.get("status", "draft")
     expected_date = data.get("expected_date")
 
-    # Validate supplier ID
     if isinstance(supplier_id, bool):
         raise ValueError("Supplier ID must be a positive integer")
 
@@ -40,7 +39,6 @@ def validate_purchase_order(data):
     if supplier_id <= 0:
         raise ValueError("Supplier ID must be a positive integer")
 
-    # Validate status
     if not isinstance(status, str):
         raise ValueError("Status must be a string")
 
@@ -51,7 +49,6 @@ def validate_purchase_order(data):
             f"Invalid status. Allowed statuses: {', '.join(sorted(VALID_STATUSES))}"
         )
 
-    # Validate expected date (optional)
     if expected_date in ("", None):
         expected_date = None
     else:

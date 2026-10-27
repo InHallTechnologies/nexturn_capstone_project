@@ -5,7 +5,7 @@ export const StatCard = ({
   value,
   subtitle,
   icon: Icon,
-  variant = 'primary', // primary, success, warning, danger, info
+  variant = 'primary',
   trend,
   loading = false,
 }) => {

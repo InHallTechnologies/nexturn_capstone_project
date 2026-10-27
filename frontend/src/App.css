@@ -1,16 +1,8 @@
-/* ==========================================================================
-   Retail Inventory Application Shell, Layout & Component Styles
-   Inventra-Inspired Warm Minimalist Dashboard Experience
-   ========================================================================== */
-
-/* Main App Shell Layout */
 .app-shell {
   display: flex;
   min-height: 100vh;
   background-color: var(--bg-app);
 }
-
-/* Sidebar Styles - Seamless Ethereal Ivory Panel */
 .sidebar {
   width: 260px;
   background-color: var(--sidebar-bg);
@@ -55,8 +47,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-/* Circular Target/Compass Logo matching Reference Image */
 .sidebar-brand-icon {
   width: 36px;
   height: 36px;
@@ -112,8 +102,6 @@
 .sidebar-toggle-btn:hover {
   background-color: #E2E4DA;
 }
-
-/* Sidebar Navigation Items */
 .sidebar-nav {
   flex: 1;
   padding: 0.85rem 1rem;
@@ -137,8 +125,6 @@
 .sidebar.collapsed .nav-section-title {
   display: none;
 }
-
-/* Navigation Links */
 .nav-item {
   display: flex;
   align-items: center;
@@ -157,8 +143,6 @@
   background-color: var(--sidebar-hover);
   color: var(--text-main);
 }
-
-/* Active Nav Pill: Lime-Moss Pill with Dark Text */
 .nav-item.active {
   background-color: var(--sidebar-active-bg);
   color: #1B1B1B;
@@ -177,8 +161,6 @@
   color: var(--text-secondary);
   transition: color var(--transition-fast);
 }
-
-/* Sidebar Footer */
 .sidebar-footer {
   padding: 1rem 1.15rem;
   border-top: 1px solid var(--sidebar-border);
@@ -224,10 +206,6 @@
   text-overflow: ellipsis;
 }
 
-/* ==========================================================================
-   Main Content Area & Topbar Header
-   ========================================================================== */
-
 .main-wrapper {
   flex: 1;
   display: flex;
@@ -236,8 +214,6 @@
   height: 100vh;
   overflow: hidden;
 }
-
-/* Topbar Header matching Inventra Reference */
 .topbar {
   height: 72px;
   background-color: var(--bg-app);
@@ -278,8 +254,6 @@
   align-items: center;
   gap: 0.85rem;
 }
-
-/* Pill Search Bar */
 .topbar-search-pill {
   position: relative;
   display: flex;
@@ -327,8 +301,6 @@
   font-size: 0.95rem;
   cursor: pointer;
 }
-
-/* Page Scroll Container */
 .page-scroll-container {
   flex: 1;
   overflow-y: auto;
@@ -342,8 +314,6 @@
   flex-direction: column;
   gap: 1.5rem;
 }
-
-/* Page Header */
 .page-header {
   display: flex;
   align-items: center;
@@ -369,10 +339,6 @@
   align-items: center;
   gap: 0.75rem;
 }
-
-/* ==========================================================================
-   DASHBOARD 2-COLUMN LAYOUT (Matching Inventra Reference Image)
-   ========================================================================== */
 
 .dashboard-layout-grid {
   display: grid;
@@ -451,8 +417,6 @@
   color: var(--text-secondary);
   font-size: 0.8rem;
 }
-
-/* Row 1: KPI Stat Cards */
 .stats-kpi-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -540,8 +504,6 @@
   background-color: var(--status-red-bg);
   color: var(--status-red-text);
 }
-
-/* Recent Orders Table Card */
 .dashboard-table-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -564,8 +526,6 @@
   font-weight: 700;
   color: var(--text-main);
 }
-
-/* Right Column Widgets */
 .dashboard-widget-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -601,8 +561,6 @@
 .widget-manage-link:hover {
   color: var(--primary-moss);
 }
-
-/* Filter Bar for Products & Tables */
 .filter-bar {
   display: flex;
   align-items: center;
@@ -621,8 +579,6 @@
   gap: 0.75rem;
   flex-wrap: wrap;
 }
-
-/* Search input with icon */
 .search-input-wrapper {
   position: relative;
   min-width: 240px;
@@ -641,8 +597,6 @@
   padding-left: 2.35rem !important;
   border-radius: var(--radius-full) !important;
 }
-
-/* Table Pagination Bar */
 .pagination-bar {
   display: flex;
   align-items: center;
@@ -663,8 +617,6 @@
   align-items: center;
   gap: 0.35rem;
 }
-
-/* Point of Sale (POS) Clean Surface Layout */
 .pos-container {
   display: grid;
   grid-template-columns: 1fr 380px;

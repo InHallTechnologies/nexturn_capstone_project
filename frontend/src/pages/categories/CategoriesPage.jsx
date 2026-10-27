@@ -20,14 +20,12 @@ export const CategoriesPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Modals
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Delete Dialog
   const [deletingCategory, setDeletingCategory] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -239,7 +237,6 @@ export const CategoriesPage = () => {
         onEmptyAction={handleOpenCreate}
       />
 
-      {/* Form Modal */}
       <Modal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
@@ -294,7 +291,6 @@ export const CategoriesPage = () => {
         </form>
       </Modal>
 
-      {/* Delete Confirm */}
       <ConfirmDialog
         isOpen={Boolean(deletingCategory)}
         onClose={() => setDeletingCategory(null)}

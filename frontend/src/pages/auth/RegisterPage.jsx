@@ -94,11 +94,7 @@ export const RegisterPage = () => {
   return (
     <div className="auth-page-wrapper">
       <div className="auth-split-card">
-        {/* ====================================================================
-            LEFT BRANDING & 3D LAPTOP DASHBOARD ILLUSTRATION PANEL
-            ==================================================================== */}
         <div className="auth-brand-panel">
-          {/* Top Brand & Headline */}
           <div className="auth-brand-header">
             <Link to="/register" className="auth-logo-badge" aria-label="Retail Inventory home">
               <RetailInventoryLogo size={36} />
@@ -115,7 +111,6 @@ export const RegisterPage = () => {
             </p>
           </div>
 
-          {/* Center 3D Isometric Laptop Illustration */}
           <div className="auth-illustration-container">
             <img
               src={registerIllustration}
@@ -124,7 +119,6 @@ export const RegisterPage = () => {
             />
           </div>
 
-          {/* Bottom Features Section */}
           <div className="auth-features-section">
             <div className="auth-features-caption">Everything you need in one place</div>
 
@@ -153,14 +147,10 @@ export const RegisterPage = () => {
           </div>
         </div>
 
-        {/* ====================================================================
-            RIGHT REGISTRATION FORM CARD
-            ==================================================================== */}
         <div className="auth-form-panel">
           <h2 className="auth-form-title">Create Your Account</h2>
           <p className="auth-form-subtitle">Join Retail Inventory and streamline your operations.</p>
 
-          {/* Error Banner */}
           {error && (
             <div className="auth-error-banner" role="alert">
               <AlertCircle size={16} />
@@ -169,9 +159,7 @@ export const RegisterPage = () => {
           )}
 
           <form onSubmit={handleSubmit} noValidate>
-            {/* Row 1: First Name & Last Name */}
             <div className="auth-row-2col">
-              {/* First Name */}
               <div className="auth-field-group" style={{ marginBottom: 0 }}>
                 <div className="auth-input-wrapper">
                   <User size={18} className="auth-input-icon" />
@@ -195,7 +183,6 @@ export const RegisterPage = () => {
                 )}
               </div>
 
-              {/* Last Name */}
               <div className="auth-field-group" style={{ marginBottom: 0 }}>
                 <div className="auth-input-wrapper">
                   <User size={18} className="auth-input-icon" />
@@ -213,7 +200,6 @@ export const RegisterPage = () => {
               </div>
             </div>
 
-            {/* Email Address Field */}
             <div className="auth-field-group">
               <div className="auth-input-wrapper">
                 <Mail size={18} className="auth-input-icon" />
@@ -237,7 +223,6 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            {/* Password Field */}
             <div className="auth-field-group">
               <div className="auth-input-wrapper">
                 <Lock size={18} className="auth-input-icon" />
@@ -272,7 +257,6 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            {/* Confirm Password Field */}
             <div className="auth-field-group">
               <div className="auth-input-wrapper">
                 <Lock size={18} className="auth-input-icon" />
@@ -309,7 +293,6 @@ export const RegisterPage = () => {
               )}
             </div>
 
-            {/* Primary Action Button: Create Account */}
             <button
               type="submit"
               className="auth-btn-primary"
@@ -327,7 +310,6 @@ export const RegisterPage = () => {
             </button>
           </form>
 
-          {/* Footer Prompt */}
           <div className="auth-footer-prompt">
             Already have an account?
             <Link to="/login" className="auth-footer-link">

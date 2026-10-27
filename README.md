@@ -1,65 +1,106 @@
 # Retail Inventory
 
-Flask, React/Vite, PostgreSQL, SQLAlchemy, and JWT application for retail stock,
-purchase-order, receiving, and sales workflows. Inventory on hand is derived
-from signed stock movements; it is not stored as an editable product quantity.
-All product, purchase, sales, and valuation amounts are displayed in Indian
-rupees (INR), with Indian digit grouping.
+A full-stack retail inventory and purchase-order application built with React,
+Flask, SQLAlchemy, PostgreSQL, and JWT authentication. It covers product and
+supplier management, purchasing and receiving, point-of-sale, stock movement
+tracking, and operational reports.
 
-## Requirements and roles
+Inventory on hand is calculated from signed stock movements rather than stored
+as an editable product quantity. Monetary values are presented in Indian rupees
+(INR), with Indian digit grouping.
 
-- **Owner:** full access, purchase-order approval, valuation, ledger-balance, and sales-by-day reports.
-- **Manager:** product/catalog and supplier management, purchase orders, receiving, and low-stock reporting. Only an Owner may approve purchase orders.
-- **Staff:** browse product stock and record/view sales created by their own account.
-- Public registration always creates a Staff account. Owner, Manager, and initial Staff accounts are created by the seed script.
-- Receipts, sales, returns, and adjustments update the stock ledger with their parent transaction. Sales that would make stock negative and receipts exceeding ordered quantities are rejected.
+## Features and roles
 
-These permissions are enforced by the API as well as by the React route/navigation layer.
+| Role | Capabilities |
+| --- | --- |
+| Owner | Full access; approve purchase orders; view inventory valuation, ledger balance, and sales-by-day reports |
+| Manager | Manage catalog and suppliers; create/manage purchase orders; receive goods; view low-stock report |
+| Staff | Browse products and stock; create sales and view sales created by their account |
+
+Public registration always creates a Staff account. React protects role-specific
+pages, and the Flask API independently enforces authentication and permissions.
+Sales that would make stock negative and receipts exceeding ordered quantities
+are rejected.
+
+## Architecture
+
+```text
+Browser :8080
+    │
+    ▼
+Nginx web container
+    ├── Serves the production React/Vite build
+    └── Proxies /api/* to the Flask API container
+                              │
+                              ▼
+                      SQLAlchemy / DATABASE_URL
+                              │
+                              ▼
+                    PostgreSQL database
+```
+
+Docker Compose currently defines the `web` and `api` services. PostgreSQL is
+not defined in `docker-compose.yml`; provide a PostgreSQL database reachable
+from the API container through `DATABASE_URL`. The database must be available
+before the API startup command can create tables and seed data.
 
 ## Run with Docker Compose
 
+Requirements: Docker Engine with the Compose plugin and a reachable PostgreSQL
+database.
+
 1. Copy `backend/.env.example` to `backend/.env`.
-2. Replace the placeholder PostgreSQL password in both `POSTGRES_PASSWORD` and
-   `DATABASE_URL`, generate a unique `SECRET_KEY` of at least 32 bytes, and set
-   unique initial passwords for each seed role.
-3. From the repository root run:
+2. Set `DATABASE_URL` to the PostgreSQL connection string accessible from the
+   API container. Do not use `localhost` for a database running outside the API
+   container; use a hostname or address reachable from the container.
+3. Replace the placeholder `SECRET_KEY` with a unique random value of at least
+   32 bytes. Set unique initial passwords for Owner, Manager, and Staff.
+4. From the repository root, build and start the application:
 
    ```powershell
    docker compose --env-file backend/.env up --build
    ```
 
-4. Open <http://localhost:8080>. The API is also available at
+5. Open the frontend at <http://localhost:8080>. The API is exposed at
    <http://localhost:8000>.
 
-The database uses a named volume. To stop the services without deleting data,
-run `docker compose down`. Do not remove the volume when stopping the project.
+The API container creates database tables, runs the idempotent user and demo
+inventory seeds, then starts Gunicorn. The frontend image builds the Vite
+application and serves it with Nginx. Nginx serves client-side routes from
+`index.html` and forwards `/api/` requests to the `api` service.
 
-The API creates its tables and runs the idempotent user and opening-inventory
-seeds before Gunicorn starts. New seed-account passwords are read only from
-environment variables; existing seed accounts are left unchanged. Database
-credentials and JWT secrets must not be committed.
-
-The demo catalog uses rupee-denominated sample prices. Existing database
-records are preserved when the currency display changes; review and update
-existing product and transaction values if they were previously entered in a
-different currency.
+Stop the containers with `docker compose down`. The Compose file does not
+define a PostgreSQL service or database volume, so database persistence and
+backup are managed by the PostgreSQL deployment configured in `DATABASE_URL`.
+Keep secrets and passwords out of source control.
 
 ## Local development
 
-Backend (Python 3.11+):
+### Backend
+
+Requirements: Python 3.11 or later, `uv`, and a reachable PostgreSQL database.
 
 ```powershell
 cd backend
 uv sync
 Copy-Item .env.example .env
-# Edit .env with a PostgreSQL URL, a random SECRET_KEY (32+ bytes), and seed passwords.
 uv run python -m backend.create_tables
 uv run python -m backend.seed
 uv run python -m backend.main
-uv run pytest
 ```
 
-Frontend (Node.js):
+Configure `DATABASE_URL`, `SECRET_KEY`, and the three initial seed passwords
+in `.env` before running the database commands.
+
+Run backend tests with:
+
+```powershell
+uv run --group dev pytest
+```
+
+### Frontend
+
+Requirements: Node.js and npm.
 
 ```powershell
 cd frontend
@@ -69,39 +110,46 @@ npm run lint
 npm run build
 ```
 
-The Vite development server proxies `/api` to `http://127.0.0.1:8000`; the
-production Nginx configuration proxies the same paths to the API container.
+The Vite development server proxies `/api` to `http://127.0.0.1:8000`. The
+production Nginx configuration proxies the same API paths to the Compose
+`api` service.
 
 ## API routes
 
-All routes are under `/api`.
+All API routes are under `/api`.
 
-| Resource | Routes |
-| --- | --- |
-| Authentication | `POST /auth/register`, `/auth/login`, `/auth/refresh`, `/auth/logout`; `GET /auth/me` |
-| Products | `GET /products`, `/products/<id>`; Owner/Manager: `POST /products`, `PUT` and `DELETE /products/<id>` |
-| Categories | Owner/Manager: list, read, create, update, and delete `/categories` |
-| Suppliers | Owner/Manager: list, read, create, update, delete, and supplier purchase history |
-| Purchase orders | Owner/Manager: list, read, create, update, receive, and cancel; Owner only: approve |
-| Sales | All roles: list and create; a non-Owner may view only their own sales |
-| Stock movements | Owner/Manager: list movements and create reasoned stock adjustments |
-| Reports | Owner/Manager: low stock; Owner only: valuation, ledger balance, and sales by day |
+| Resource | Routes | Access |
+| --- | --- | --- |
+| Authentication | `POST /auth/register`, `/login`, `/refresh`, `/logout`; `GET /auth/me` | Registration/login/refresh are public; other operations require the appropriate token |
+| Products | `GET /products`, `/products/<id>`; `POST`, `PUT`, `DELETE /products/<id>` | All roles can read; Owner/Manager can write |
+| Categories | CRUD `/categories` | Owner/Manager |
+| Suppliers | CRUD `/suppliers`; `GET /suppliers/<id>/purchase-orders` | Owner/Manager |
+| Purchase orders | CRUD `/purchase-orders`; `POST /purchase-orders/<id>/receive`, `/cancel` | Owner/Manager |
+| Purchase-order approval | `POST /purchase-orders/<id>/approve` | Owner |
+| Sales | `GET`, `POST /sales`; `GET /sales/<id>` | All roles; non-Owners can access only their own sales |
+| Stock movements | `GET /stock-movements`; `POST /stock-movements/adjustments` | Owner/Manager |
+| Reports | `GET /reports/low-stock` | Owner/Manager |
+| Owner reports | `GET /reports/valuation`, `/ledger-balance`, `/sales-by-day` | Owner |
 
-Request validation and response fields are implemented by the Flask routes and
-schemas; the frontend uses the shared Axios client and handles access-token
-refresh/rotation.
+List and report endpoints support pagination; supported routes also accept
+sorting and filters. Request schemas validate incoming data, and the frontend
+uses a shared Axios client that handles access-token refresh and rotation.
 
-## Submission artifacts
+## Seed accounts and sample data
 
-- The backend data model diagram is in [`docs/data-model.md`](./docs/data-model.md).
-- Import [`postman/Retail-Inventory.postman_collection.json`](./postman/Retail-Inventory.postman_collection.json)
-  into Postman to exercise the implemented API routes. Set the `baseUrl`,
-  `email`, and `password` collection variables locally; use a seeded account
-  for the role being tested. Login and refresh requests save the current access
-  and refresh tokens for the remaining requests. Do not commit real passwords.
+The seed script creates `owner@example.com`, `manager@example.com`, and
+`staff@example.com`, plus sample categories, suppliers, products, purchase
+orders, sales, and stock movements. Set passwords with
+`OWNER_INITIAL_PASSWORD`, `MANAGER_INITIAL_PASSWORD`, and
+`STAFF_INITIAL_PASSWORD` in `backend/.env`. Passwords are intentionally not
+committed. Existing seed accounts are not overwritten.
 
-## Tests
+## Project documentation and API walkthrough
 
-Backend tests run with `cd backend; uv run pytest`. Frontend checks run with
-`cd frontend; npm run lint` and `npm run build`. Docker Compose validation
-requires Docker Engine with the Compose plugin.
+- [Backend setup and API details](./backend/README.md)
+- [Frontend setup](./frontend/README.md)
+- [Data model](./docs/data-model.md)
+- [Postman collection](./postman/Retail-Inventory.postman_collection.json)
+
+Set the Postman `baseUrl`, `email`, and `password` variables locally. Use an
+account with the role required for the route being tested.

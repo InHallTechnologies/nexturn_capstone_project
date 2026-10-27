@@ -22,20 +22,17 @@ export const ReportsPage = () => {
   const { isOwner } = useAuth();
   const { showSuccess, showError } = useToast();
 
-  const [activeTab, setActiveTab] = useState('low-stock'); // 'low-stock', 'valuation', 'sales-by-day', 'ledger-balance'
+  const [activeTab, setActiveTab] = useState('low-stock');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 1. Low stock data
   const [lowStockData, setLowStockData] = useState([]);
   const [lowStockPagination, setLowStockPagination] = useState({ page: 1, per_page: 20, total: 0, pages: 1 });
 
-  // 2. Valuation data (Owner only)
   const [valuationData, setValuationData] = useState([]);
   const [valuationTotal, setValuationTotal] = useState('0.00');
   const [valuationPagination, setValuationPagination] = useState({ page: 1, per_page: 20, total: 0, pages: 1 });
 
-  // 3. Sales by day data (Owner only)
   const [startDate, setStartDate] = useState(() =>
     new Date(Date.now() - 29 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
   );
@@ -43,11 +40,9 @@ export const ReportsPage = () => {
   const [salesByDayData, setSalesByDayData] = useState([]);
   const [salesByDayPagination, setSalesByDayPagination] = useState({ page: 1, per_page: 30, total: 0, pages: 1 });
 
-  // 4. Ledger balance data (Owner only)
   const [ledgerBalanceData, setLedgerBalanceData] = useState([]);
   const [ledgerPagination, setLedgerPagination] = useState({ page: 1, per_page: 20, total: 0, pages: 1 });
 
-  // Load report based on activeTab
   const loadActiveReport = useCallback(
     async (page = 1) => {
       setLoading(true);
@@ -91,7 +86,6 @@ export const ReportsPage = () => {
     loadActiveReport(1);
   }, [loadActiveReport]);
 
-  // Export to CSV helper
   const exportToCSV = () => {
     let rows = [];
     let filename = `retail-inventory-${activeTab}-${new Date().toISOString().slice(0, 10)}.csv`;
@@ -152,7 +146,6 @@ export const ReportsPage = () => {
 
       {error && <ErrorAlert message={error} onRetry={() => loadActiveReport(1)} />}
 
-      {/* Report Navigation Tabs */}
       <div
         style={{
           display: 'flex',
@@ -204,7 +197,6 @@ export const ReportsPage = () => {
         </button>
       </div>
 
-      {/* 1. Low Stock Report */}
       {activeTab === 'low-stock' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div
@@ -276,7 +268,6 @@ export const ReportsPage = () => {
         </div>
       )}
 
-      {/* 2. Valuation at Cost Report (Owner Only) */}
       {activeTab === 'valuation' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div className="card" style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -341,10 +332,8 @@ export const ReportsPage = () => {
         </div>
       )}
 
-      {/* 3. Daily Sales Revenue Report (Owner Only) */}
       {activeTab === 'sales-by-day' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {/* Date range picker filter */}
           <div className="filter-bar">
             <div className="filter-group">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem' }}>
@@ -376,7 +365,6 @@ export const ReportsPage = () => {
             </div>
           </div>
 
-          {/* Chart representation */}
           {salesByDayData.length > 0 && (
             <div className="card" style={{ padding: '1.5rem' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '1rem' }}>
@@ -424,7 +412,6 @@ export const ReportsPage = () => {
         </div>
       )}
 
-      {/* 4. Ledger Balance Reconciliation (Owner Only) */}
       {activeTab === 'ledger-balance' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div

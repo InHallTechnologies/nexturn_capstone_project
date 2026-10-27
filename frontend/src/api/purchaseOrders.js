@@ -35,7 +35,6 @@ export const purchaseOrdersApi = {
   },
 
   receivePurchaseOrder: async (id, receipts) => {
-    // receipts: array of { item_id, quantity }
     const response = await apiClient.post(`/api/purchase-orders/${id}/receive`, {
       items: receipts,
     });

@@ -31,14 +31,12 @@ export const ProductsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filters & Sorting
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category_id') || '');
   const [lowStockOnly, setLowStockOnly] = useState(searchParams.get('low_stock') === 'true');
   const [sortField, setSortField] = useState('name');
   const [sortOrder, setSortOrder] = useState('asc');
 
-  // Modals
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
@@ -53,27 +51,24 @@ export const ProductsPage = () => {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Detail Modal
   const [viewingProduct, setViewingProduct] = useState(null);
 
-  // Delete Confirm Dialog
   const [deletingProduct, setDeletingProduct] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Load categories for dropdown (if user has permission, else categories is empty)
   useEffect(() => {
     const loadCategories = async () => {
       try {
         const res = await categoriesApi.listCategories({ per_page: 100 });
         setCategories(res.items || []);
-      } catch {
-        // Staff role may not have permission to list categories; ignore gracefully
+      } catch (error) {
+        showError(error.response?.data?.error || 'Failed to load categories.');
       }
     };
     if (canManageProducts) {
       loadCategories();
     }
-  }, [canManageProducts]);
+  }, [canManageProducts, showError]);
 
   const loadProducts = useCallback(
     async (page = 1) => {
@@ -371,7 +366,6 @@ export const ProductsPage = () => {
 
   return (
     <div className="page-container">
-      {/* Page Header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">Product Catalogue</h1>
@@ -390,7 +384,6 @@ export const ProductsPage = () => {
 
       {error && <ErrorAlert message={error} onRetry={() => loadProducts(1)} />}
 
-      {/* Filter and Search Bar */}
       <div className="filter-bar">
         <div className="filter-group">
           <SearchInput
@@ -468,7 +461,6 @@ export const ProductsPage = () => {
         </div>
       </div>
 
-      {/* Data Table */}
       <DataTable
         columns={columns}
         data={products}
@@ -487,7 +479,6 @@ export const ProductsPage = () => {
         onEmptyAction={canManageProducts ? handleOpenCreate : undefined}
       />
 
-      {/* Create / Edit Product Modal */}
       <Modal
         isOpen={isFormModalOpen}
         onClose={() => setIsFormModalOpen(false)}
@@ -656,7 +647,6 @@ export const ProductsPage = () => {
         </form>
       </Modal>
 
-      {/* Product Detail Modal */}
       {viewingProduct && (
         <Modal
           isOpen={Boolean(viewingProduct)}
@@ -726,7 +716,6 @@ export const ProductsPage = () => {
         </Modal>
       )}
 
-      {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(deletingProduct)}
         onClose={() => setDeletingProduct(null)}

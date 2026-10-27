@@ -110,50 +110,37 @@ A small retail store tracks stock, raises purchase orders to suppliers, receives
 
 | Owner | Suggested responsibility |
 | --- | --- |
-| Member 1 | Auth, roles, products, categories, suppliers. |
-| Member 2 | Purchase orders, receiving, stock movement ledger, sales, reports. |
-| Member 3 | Entire React application. |
+| Mudavath Tharun | React application, role-aware navigation, feature screens, shared UI, and API integration. |
+| Kuldeep Choudhary | Authentication, role enforcement, catalog/supplier APIs, core data setup, and database models/schemas. |
+| Shubham Shekhawat | Purchase-order and receiving workflows, sales, stock movements, reports, API verification, and Postman walkthrough. |
 
 ---
 
-## Contribution Log — to be filled in by the team
+## Contribution Log — draft allocation
 
-> Fill this in yourselves before submission. Be specific: name the modules, endpoints, components or files you actually built. One line per item.
+> This is a proposed, file-specific split based on the project modules and the available Git history. Confirm or adjust it with all three members before submission: the current history identifies commits from Kuldeep Choudhary and TharunRajM (Mudavath Tharun), but does not identify a Shubham Shekhawat author entry. The split below is not proof of individual authorship.
 
-| Member | Modules / features built | Files or folders owned | Approx. commits |
-| --- | --- | --- | --- |
-| Mudavath Tharun |  |  |  |
-| Kuldeep Choudhary |  |  |  |
-| Shubham Shekhawat |  |  |  |
+| Member | Modules / features in the proposed split | Files or folders |
+| --- | --- | --- |
+| Mudavath Tharun | React application, role-aware navigation, dashboard and feature screens, shared UI, API-client integration, and authentication context | `frontend/src/App.jsx`; `frontend/src/pages/`; `frontend/src/components/`; `frontend/src/api/`; `frontend/src/context/`; `frontend/src/utils/`; `frontend/src/App.css`; `frontend/src/index.css`; `frontend/src/main.jsx` |
+| Kuldeep Choudhary | Flask authentication/JWT and role middleware; product, category, and supplier APIs; shared database setup, core models, and validation schemas | `backend/src/backend/routes/auth.py`; `backend/src/backend/routes/products.py`; `backend/src/backend/routes/categories.py`; `backend/src/backend/routes/suppliers.py`; `backend/src/backend/routes/common.py`; `backend/src/backend/models/`; `backend/src/backend/schemas/`; `backend/src/backend/utils/`; `backend/src/backend/database.py`; `backend/src/backend/main.py`; `backend/src/backend/seed.py` |
+| Shubham Shekhawat | Purchase-order approval/receiving, sales, stock movements, reports, and API workflow verification | `backend/src/backend/routes/purchase_orders.py`; `backend/src/backend/routes/sales.py`; `backend/src/backend/routes/stock_movements.py`; `backend/src/backend/routes/reports.py`; `backend/src/backend/schemas/purchase_order.py`; `backend/src/backend/schemas/sales.py`; `backend/src/backend/schemas/stock_movement.py`; `backend/tests/test_api.py`; `backend/tests/test_schemas.py`; `postman/Retail-Inventory.postman_collection.json` |
 
-### Individual summaries
+### Individual contribution summaries
 
-**Mudavath Tharun**
-
-- What I built: 
-- What I found hardest: 
-- What I would do differently: 
-
-**Kuldeep Choudhary**
-
-- What I built: 
-- What I found hardest: 
-- What I would do differently: 
-
-**Shubham Shekhawat**
-
-- What I built: 
-- What I found hardest: 
-- What I would do differently: 
+- **Mudavath Tharun:** proposed focus — frontend screens, shared React components, role-aware routes, and connection to backend APIs.
+- **Kuldeep Choudhary:** proposed focus — backend authentication and permissions, catalog/supplier APIs, shared models/schemas, and database setup.
+- **Shubham Shekhawat:** proposed focus — purchase, receiving, sales, stock-movement and reporting workflows, plus API workflow tests and the Postman collection.
 
 ### Shared / pair work
 
-- 
-- 
+- Frontend-to-backend integration: align React API calls and role-aware screens with the Flask `/api` endpoints.
+- Docker delivery walkthrough: validate `backend/Dockerfile`, `frontend/Dockerfile`, `docker-compose.yml`, `frontend/nginx.conf`, API startup/seeding, environment setup, and PostgreSQL connectivity.
+- Final acceptance check: walk through order approval, partial receiving, stock movements, POS sale, and reports; confirm the contribution split with the team.
 
 ### Declaration
 
-We confirm the above split is accurate and every member contributed code to this repository.
+By signing below, each member confirms that the contribution split has been checked and accurately reflects their actual work; revise the proposed allocation before signing if needed.
 
 | Member | Signature / date |
 | --- | --- |
@@ -165,13 +152,13 @@ We confirm the above split is accurate and every member contributed code to this
 
 ## Deliverables Checklist
 
-- [ ] GitHub repository containing both applications with a readable commit history from every member.
-- [x] README.md with setup instructions, environment variables and an API endpoint table.
-- [x] ER diagram in [`docs/data-model.md`](../docs/data-model.md).
-- [ ] Seed script with demo data and demo credentials per role.
-- [x] Postman collection covering implemented endpoints in [`postman/Retail-Inventory.postman_collection.json`](../postman/Retail-Inventory.postman_collection.json).
-- [ ] Working `docker compose up --build` on a clean machine.
-- [ ] 5-minute demo video.
+- [ ] GitHub repository containing both applications with a readable commit history from every member (the current history does not identify commits from Shubham Shekhawat).
+- [ ] README.md with setup instructions, environment variables and an API endpoint table.
+- [ ] ER diagram in [`docs/data-model.md`](../docs/data-model.md).
+- [ ] Seed script creates sample inventory and Owner/Manager/Staff accounts; role emails and environment-configured password variables are documented in Setup.
+- [ ] Postman collection covering implemented endpoints in [`postman/Retail-Inventory.postman_collection.json`](../postman/Retail-Inventory.postman_collection.json).
+- [ ] Working `docker compose up --build` verified on a clean machine (Compose configuration validates, but the current Compose file defines only `api` and `web`; PostgreSQL must also be available through `DATABASE_URL`).
+- [ ] 5-minute demo video (no recording is currently present in the repository).
 
 ## Evaluation
 

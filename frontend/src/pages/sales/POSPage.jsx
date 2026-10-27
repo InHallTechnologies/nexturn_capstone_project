@@ -31,13 +31,11 @@ export const POSPage = () => {
   const [search, setSearch] = useState('');
   const [loadingProducts, setLoadingProducts] = useState(true);
 
-  // Cart: Array of { product: Product, quantity: number }
   const [cart, setCart] = useState([]);
   const [customBillNumber, setCustomBillNumber] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [saleError, setSaleError] = useState('');
 
-  // Receipt Modal
   const [completedSale, setCompletedSale] = useState(null);
 
   const loadProducts = useCallback(async () => {
@@ -168,7 +166,6 @@ export const POSPage = () => {
       setCart([]);
       setCustomBillNumber('');
 
-      // Refresh product stock balances
       await loadProducts();
     } catch (err) {
       if (err.response?.status === 409) {
@@ -178,7 +175,6 @@ export const POSPage = () => {
           `Stock conflict: requested quantity is unavailable in the stock ledger.`;
         setSaleError(msg);
         showError(msg);
-        // Refresh catalogue stock to show real balance
         loadProducts();
       } else {
         const msg =
@@ -209,9 +205,7 @@ export const POSPage = () => {
       {categoryError && <ErrorAlert message={categoryError} onRetry={loadCategories} />}
 
       <div className="pos-container">
-        {/* Left: Products Browser Panel */}
         <div className="pos-products-panel">
-          {/* Search & Category Filter Bar */}
           <div className="filter-bar" style={{ padding: '0.65rem 1rem' }}>
             <div className="filter-group" style={{ flex: 1 }}>
               <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
@@ -253,7 +247,6 @@ export const POSPage = () => {
             </div>
           </div>
 
-          {/* Product Cards Grid */}
           <div className="pos-grid">
             {loadingProducts ? (
               <div style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -311,7 +304,6 @@ export const POSPage = () => {
           </div>
         </div>
 
-        {/* Right: Cart & Checkout Panel */}
         <div className="pos-cart-panel">
           <div className="pos-cart-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -325,7 +317,6 @@ export const POSPage = () => {
             )}
           </div>
 
-          {/* Cart items list */}
           <div className="pos-cart-items">
             {cart.length === 0 ? (
               <div
@@ -444,7 +435,6 @@ export const POSPage = () => {
             )}
           </div>
 
-          {/* Cart Summary & Checkout */}
           <div className="pos-cart-summary">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: '0.8125rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
@@ -503,7 +493,6 @@ export const POSPage = () => {
         </div>
       </div>
 
-      {/* Sale Receipt Confirmation Modal */}
       {completedSale && (
         <Modal
           isOpen={Boolean(completedSale)}

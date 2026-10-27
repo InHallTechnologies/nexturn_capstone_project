@@ -27,11 +27,10 @@ export const ReceiveGoodsPage = () => {
   const [productsMap, setProductsMap] = useState({});
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [loadingOrder, setLoadingOrder] = useState(false);
-  const [receivingInputs, setReceivingInputs] = useState({}); // { [itemId]: number }
+  const [receivingInputs, setReceivingInputs] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // 1. Load eligible orders (status: approved or partially_received) and catalogs
   const fetchEligibleOrders = useCallback(async () => {
     setLoadingInitial(true);
     setError('');
@@ -64,7 +63,6 @@ export const ReceiveGoodsPage = () => {
     fetchEligibleOrders();
   }, [fetchEligibleOrders]);
 
-  // 2. Load selected order details
   const loadOrderDetails = useCallback(
     async (orderId) => {
       if (!orderId) {
@@ -78,7 +76,6 @@ export const ReceiveGoodsPage = () => {
         const orderData = await purchaseOrdersApi.getPurchaseOrder(orderId);
         setSelectedOrder(orderData);
 
-        // Pre-fill inputs with 0 for each line item
         const initialInputs = {};
         (orderData.items || []).forEach((item) => {
           initialInputs[item.id] = 0;
@@ -109,7 +106,6 @@ export const ReceiveGoodsPage = () => {
 
   useEffect(() => {
     if (!selectedPoId && eligibleOrders.length > 0) {
-      // Auto-select first eligible order
       const firstId = eligibleOrders[0].id.toString();
       setSearchParams({ po_id: firstId });
     }
@@ -154,7 +150,6 @@ export const ReceiveGoodsPage = () => {
     if (!selectedOrder) return;
     setError('');
 
-    // Prepare payload
     const receiptItems = [];
     for (const item of selectedOrder.items || []) {
       const receivingQty = parseInt(receivingInputs[item.id], 10) || 0;
@@ -188,7 +183,6 @@ export const ReceiveGoodsPage = () => {
         `Goods received successfully for PO-${selectedOrder.id.toString().padStart(4, '0')}. Stock movement recorded into ledger.`
       );
 
-      // Refresh eligible orders and current order
       await fetchEligibleOrders();
       await loadOrderDetails(selectedOrder.id);
     } catch (err) {
@@ -221,7 +215,6 @@ export const ReceiveGoodsPage = () => {
 
       {error && <ErrorAlert message={error} />}
 
-      {/* Select Purchase Order Card */}
       <div className="card" style={{ padding: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ flex: '1 1 300px' }}>
@@ -281,7 +274,6 @@ export const ReceiveGoodsPage = () => {
         </div>
       ) : (
         <form onSubmit={handleSubmitReceipt}>
-          {/* Order Details Header */}
           <div
             className="card"
             style={{
@@ -329,7 +321,6 @@ export const ReceiveGoodsPage = () => {
             </div>
           </div>
 
-          {/* Line items table */}
           <div className="table-container" style={{ marginTop: '1.5rem' }}>
             <table className="data-table">
               <thead>
@@ -410,7 +401,6 @@ export const ReceiveGoodsPage = () => {
             </table>
           </div>
 
-          {/* Submission bar */}
           <div
             style={{
               display: 'flex',

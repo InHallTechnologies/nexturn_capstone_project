@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const Badge = ({
-  variant = 'neutral', // success, warning, danger, info, neutral
+  variant = 'neutral',
   children,
   icon: Icon,
   className = '',

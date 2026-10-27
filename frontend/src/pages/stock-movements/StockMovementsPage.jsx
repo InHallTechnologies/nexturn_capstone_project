@@ -16,7 +16,7 @@ import { ErrorAlert } from '../../components/common/ErrorAlert';
 
 export const StockMovementsPage = () => {
   const { canAdjustStock } = useAuth();
-  const { showSuccess } = useToast();
+  const { showSuccess, showError } = useToast();
 
   const [movements, setMovements] = useState([]);
   const [productsMap, setProductsMap] = useState({});
@@ -25,13 +25,11 @@ export const StockMovementsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Filters
   const [selectedProductId, setSelectedProductId] = useState('');
   const [selectedReason, setSelectedReason] = useState('');
   const [sortField, setSortField] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
 
-  // Manual Adjustment Modal
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
   const [adjustData, setAdjustData] = useState({
     product_id: '',
@@ -41,7 +39,6 @@ export const StockMovementsPage = () => {
   const [adjustError, setAdjustError] = useState('');
   const [submittingAdjust, setSubmittingAdjust] = useState(false);
 
-  // Load products list for filtering & names
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -52,12 +49,12 @@ export const StockMovementsPage = () => {
           map[p.id] = p;
         });
         setProductsMap(map);
-      } catch {
-        // Suppress
+      } catch (error) {
+        showError(error.response?.data?.error || 'Failed to load products.');
       }
     };
     fetchProducts();
-  }, []);
+  }, [showError]);
 
   const loadMovements = useCallback(
     async (page = 1) => {
@@ -132,7 +129,6 @@ export const StockMovementsPage = () => {
       });
       showSuccess('Manual stock adjustment recorded in the ledger.');
       setIsAdjustModalOpen(false);
-      // Reload movements and products
       loadMovements(1);
       const prodRes = await productsApi.listProducts({ per_page: 100 });
       setProductsList(prodRes.items || []);
@@ -339,7 +335,6 @@ export const StockMovementsPage = () => {
         emptyDescription="Inventory movements will automatically be logged when goods are received or sales are rung up."
       />
 
-      {/* Manual Stock Adjustment Modal */}
       <Modal
         isOpen={isAdjustModalOpen}
         onClose={() => setIsAdjustModalOpen(false)}

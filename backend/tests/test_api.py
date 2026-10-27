@@ -64,10 +64,10 @@ def test_demo_inventory_seed_is_ledger_based_and_idempotent(api, monkeypatch):
     seed.seed_inventory()
 
     with api["sessions"]() as db:
-        assert db.query(Category).count() == 3
-        assert db.query(Product).count() == 4
-        assert db.query(Supplier).count() == 1
-        assert db.query(StockMovement).count() == 3
+        assert db.query(Category).count() == 7
+        assert db.query(Product).count() == 14
+        assert db.query(Supplier).count() == 5
+        assert db.query(StockMovement).count() == 31
         seeded_prices = {
             product.sku: (str(product.cost_price), str(product.selling_price))
             for product in db.query(Product).all()

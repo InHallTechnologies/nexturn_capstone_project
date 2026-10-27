@@ -18,7 +18,6 @@ def validate_stock_movement(data):
     quantity = data.get("quantity")
     reason = data.get("reason")
 
-    # Validate product ID
     if isinstance(product_id, bool):
         raise ValueError("Product ID must be a positive integer")
 
@@ -35,7 +34,6 @@ def validate_stock_movement(data):
         raise ValueError("Product ID must be a positive integer")
     product_id = int(parsed_product_id)
 
-    # Validate quantity
     if isinstance(quantity, bool):
         raise ValueError("Quantity must be a non-zero integer")
 
@@ -54,7 +52,6 @@ def validate_stock_movement(data):
     if quantity == 0:
         raise ValueError("Quantity cannot be zero")
 
-    # Validate reason
     if not isinstance(reason, str):
         raise ValueError("Reason must be a string")
 
@@ -65,7 +62,6 @@ def validate_stock_movement(data):
             f"Invalid reason. Allowed reasons: {', '.join(sorted(VALID_REASONS))}"
         )
 
-    # Check quantity direction
     if reason == "purchase" and quantity < 0:
         raise ValueError("Purchase quantity must be positive")
 

@@ -9,9 +9,6 @@ import {
   Zap,
 } from 'lucide-react';
 
-/**
- * Realistic 1D Barcode SVG with human-readable caption
- */
 export const BarcodeSvg = ({ code = 'SKU-8942-X2', width = 160, height = 34 }) => {
   return (
     <svg
@@ -22,7 +19,6 @@ export const BarcodeSvg = ({ code = 'SKU-8942-X2', width = 160, height = 34 }) =
       className="barcode-graphic"
       aria-label={`Barcode ${code}`}
     >
-      {/* Precision 1D Barcode Pattern */}
       <rect x="0" y="0" width="3" height="24" />
       <rect x="5" y="0" width="1" height="24" />
       <rect x="8" y="0" width="2" height="24" />
@@ -75,16 +71,10 @@ export const BarcodeSvg = ({ code = 'SKU-8942-X2', width = 160, height = 34 }) =
   );
 };
 
-/**
- * Visual Panel for LOGIN:
- * Active Warehouse Aisle, High-Velocity Shelving Rack, Scanned Product Carton, and Handheld Scanner HUD
- */
 export const LoginStockroomVisual = () => {
   return (
     <div className="warehouse-environment-showcase" aria-label="Warehouse Stockroom Environment">
-      {/* Industrial Rack Shelving Frame */}
       <div className="rack-shelving-frame">
-        {/* Steel Upright Column Left */}
         <div className="rack-upright-beam left" aria-hidden="true">
           <span className="rack-slot" />
           <span className="rack-slot" />
@@ -94,9 +84,7 @@ export const LoginStockroomVisual = () => {
           <span className="rack-slot" />
         </div>
 
-        {/* Shelf Content Core */}
         <div className="rack-shelf-content">
-          {/* Location Placard / Warehouse Coordinates */}
           <div className="rack-location-header">
             <div className="rack-location-badge">
               <MapPin size={12} className="loc-icon" />
@@ -108,7 +96,6 @@ export const LoginStockroomVisual = () => {
             </div>
           </div>
 
-          {/* Primary Carton with Active Laser Scanner Beam */}
           <div className="physical-carton-card primary-carton">
             <div className="carton-seam-tape">
               <span>STOCKPILOT VERIFIED PACKAGING</span>
@@ -116,7 +103,6 @@ export const LoginStockroomVisual = () => {
             </div>
 
             <div className="carton-body">
-              {/* White Matte Barcode Label Sticker */}
               <div className="matte-barcode-sticker">
                 <div className="sticker-header">
                   <span className="sticker-brand">STOCKPILOT RETAIL LOGISTICS</span>
@@ -125,7 +111,6 @@ export const LoginStockroomVisual = () => {
 
                 <div className="barcode-render-box">
                   <BarcodeSvg code="SKU-8942-X2" width={175} height={36} />
-                  {/* Active Laser Scanning Beam */}
                   <div className="laser-scanner-overlay" aria-hidden="true">
                     <div className="laser-beam-line" />
                     <div className="scanner-crosshair top-left" />
@@ -147,7 +132,6 @@ export const LoginStockroomVisual = () => {
                 </div>
               </div>
 
-              {/* Handheld Terminal Scanner Readout Card */}
               <div className="scanner-hud-terminal">
                 <div className="scanner-hud-header">
                   <div className="scanner-device-name">
@@ -174,14 +158,12 @@ export const LoginStockroomVisual = () => {
               </div>
             </div>
 
-            {/* Industrial Shelf Support Rail Bottom */}
             <div className="industrial-shelf-beam">
               <span className="shelf-safety-stripe" />
               <span className="shelf-label">LOAD CAPACITY: 750 KG · SECTION B-02</span>
             </div>
           </div>
 
-          {/* Secondary Carton: Automated Reorder Triggered */}
           <div className="physical-carton-card secondary-carton">
             <div className="secondary-carton-inner">
               <div className="carton-item-details">
@@ -204,7 +186,6 @@ export const LoginStockroomVisual = () => {
           </div>
         </div>
 
-        {/* Steel Upright Column Right */}
         <div className="rack-upright-beam right" aria-hidden="true">
           <span className="rack-slot" />
           <span className="rack-slot" />
@@ -218,16 +199,10 @@ export const LoginStockroomVisual = () => {
   );
 };
 
-/**
- * Visual Panel for REGISTRATION:
- * Receiving Staging Dock, Inbound Logistics Pallet Carton, PO Manifest Clipboard, and Bin Router
- */
 export const RegisterStockroomVisual = () => {
   return (
     <div className="warehouse-environment-showcase" aria-label="Warehouse Receiving & Ingestion Dock">
-      {/* Industrial Rack Shelving Frame */}
       <div className="rack-shelving-frame">
-        {/* Steel Upright Column Left */}
         <div className="rack-upright-beam left" aria-hidden="true">
           <span className="rack-slot" />
           <span className="rack-slot" />
@@ -237,9 +212,7 @@ export const RegisterStockroomVisual = () => {
           <span className="rack-slot" />
         </div>
 
-        {/* Receiving Content Core */}
         <div className="rack-shelf-content">
-          {/* Location Placard / Warehouse Dock Coordinates */}
           <div className="rack-location-header">
             <div className="rack-location-badge receiving">
               <MapPin size={12} className="loc-icon" />
@@ -251,7 +224,6 @@ export const RegisterStockroomVisual = () => {
             </div>
           </div>
 
-          {/* Inbound Shipping Carton */}
           <div className="physical-carton-card primary-carton inbound-carton">
             <div className="carton-seam-tape hazard">
               <span>INBOUND FREIGHT SHIPMENT · VERIFIED BILL OF LADING</span>
@@ -259,7 +231,6 @@ export const RegisterStockroomVisual = () => {
             </div>
 
             <div className="carton-body">
-              {/* White Matte Inbound Barcode Label Sticker */}
               <div className="matte-barcode-sticker">
                 <div className="sticker-header">
                   <span className="sticker-brand">STOCKPILOT INBOUND MANIFEST</span>
@@ -282,7 +253,6 @@ export const RegisterStockroomVisual = () => {
                 </div>
               </div>
 
-              {/* Physical PO Manifest Clipboard Card */}
               <div className="po-clipboard-card">
                 <div className="clipboard-header">
                   <div className="clipboard-title">
@@ -309,14 +279,12 @@ export const RegisterStockroomVisual = () => {
               </div>
             </div>
 
-            {/* Industrial Shelf Support Rail Bottom */}
             <div className="industrial-shelf-beam">
               <span className="shelf-safety-stripe" />
               <span className="shelf-label">PALLET STAGING WEIGHT: 1,200 KG · DOCK SECURE</span>
             </div>
           </div>
 
-          {/* Warehouse Bin Routing Flow Card */}
           <div className="physical-carton-card secondary-carton routing-card">
             <div className="routing-header">
               <span className="routing-title">
@@ -354,7 +322,6 @@ export const RegisterStockroomVisual = () => {
           </div>
         </div>
 
-        {/* Steel Upright Column Right */}
         <div className="rack-upright-beam right" aria-hidden="true">
           <span className="rack-slot" />
           <span className="rack-slot" />

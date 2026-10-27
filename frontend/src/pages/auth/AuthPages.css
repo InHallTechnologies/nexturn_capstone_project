@@ -1,8 +1,3 @@
-/* ==========================================================================
-   Retail Inventory Authentication Experience
-   Ethereal Ivory, Sophisticated Sage, Minimalist Split-Screen Architecture
-   ========================================================================== */
-
 :root {
   --auth-bg: #E4E4DE;
   --auth-sage: #D2D8CC;
@@ -17,8 +12,6 @@
   --auth-error-bg: #F5DCDC;
   --auth-error-text: #7A2020;
 }
-
-/* Fullscreen Background Canvas */
 .auth-page-wrapper {
   min-height: 100vh;
   width: 100%;
@@ -33,8 +26,6 @@
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   box-sizing: border-box;
 }
-
-/* Outer Split-Screen Card Container */
 .auth-split-card {
   width: 100%;
   max-width: 1020px;
@@ -48,10 +39,6 @@
   overflow: hidden;
   position: relative;
 }
-
-/* ==========================================================================
-   Left Branding & Illustration Panel
-   ========================================================================== */
 
 .auth-brand-panel {
   background: var(--auth-sage);
@@ -93,8 +80,6 @@
   line-height: 1.45;
   margin-top: 0.35rem;
 }
-
-/* Center 3D Illustration Showcase */
 .auth-illustration-container {
   display: flex;
   align-items: center;
@@ -117,8 +102,6 @@
 .auth-illustration-img:hover {
   transform: translateY(-2px);
 }
-
-/* Bottom Feature Section */
 .auth-features-section {
   display: flex;
   flex-direction: column;
@@ -173,10 +156,6 @@
   line-height: 1.25;
 }
 
-/* ==========================================================================
-   Right Authentication Form Card
-   ========================================================================== */
-
 .auth-form-panel {
   padding: 3.25rem 3.25rem 2.75rem;
   display: flex;
@@ -199,8 +178,6 @@
   color: var(--auth-text-muted);
   margin-bottom: 1.85rem;
 }
-
-/* Input Fields */
 .auth-field-group {
   display: flex;
   flex-direction: column;
@@ -272,16 +249,12 @@
 .auth-password-toggle:hover {
   color: var(--auth-text-main);
 }
-
-/* 2-Column Responsive Row (First Name & Last Name) */
 .auth-row-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
-
-/* Primary Action Button (Sign In / Create Account) */
 .auth-btn-primary {
   width: 100%;
   height: 48px;
@@ -308,8 +281,6 @@
   opacity: 0.65;
   cursor: not-allowed;
 }
-
-/* Footer Prompt & Switch Link */
 .auth-footer-prompt {
   text-align: center;
   margin-top: 1.35rem;
@@ -327,8 +298,6 @@
 .auth-footer-link:hover {
   text-decoration: underline;
 }
-
-/* Error Banner & Field Validation Messages */
 .auth-error-banner {
   background-color: var(--auth-error-bg);
   border: 1px solid #EBC8C8;
@@ -348,8 +317,6 @@
   margin-top: 0.25rem;
   font-weight: 500;
 }
-
-/* Responsive Rules */
 @media (max-width: 960px) {
   .auth-split-card {
     grid-template-columns: 1fr;

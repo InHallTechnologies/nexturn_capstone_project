@@ -1,40 +1,26 @@
-/* ==========================================================================
-   Retail Inventory Design System
-   Inspired by Inventra Minimal Warm Aesthetic (Ivory, Sage, Moss & Eerie Black)
-   ========================================================================== */
-
 :root {
-  /* Core Palette Tokens */
-  --bg-app: #E4E4DE;                 /* Main page background: Ethereal Ivory */
-  --bg-surface: #C4C5BA;             /* Secondary surfaces: Sophisticated Sage */
-  --bg-card: #F8F8F4;                /* Main card background: Soft Ivory White */
-  --bg-card-hover: #FFFFFF;          /* Hover card background: Clean White */
-  --bg-muted: #EAEAEE;               /* Light pill/muted background */
-  --bg-sage-light: #E6E8DF;          /* Table headers & active pill subtle */
-  --bg-sage-subtle: #EDEDE8;         /* Subtly tinted container */
+  --bg-app: #E4E4DE;
+  --bg-surface: #C4C5BA;
+  --bg-card: #F8F8F4;
+  --bg-card-hover: #FFFFFF;
+  --bg-muted: #EAEAEE;
+  --bg-sage-light: #E6E8DF;
+  --bg-sage-subtle: #EDEDE8;
   --bg-active: #C4C5BA;
-
-  /* Typography Colors */
-  --text-main: #1B1B1B;              /* Primary text: Eerie Black */
-  --text-secondary: #70736A;         /* Secondary text: Muted Grey */
-  --text-muted: #8A8D84;             /* Muted captions */
-  --text-placeholder: #A2A59C;       /* Placeholder text */
+  --text-main: #1B1B1B;
+  --text-secondary: #70736A;
+  --text-muted: #8A8D84;
+  --text-placeholder: #A2A59C;
   --text-white: #FFFFFF;
-
-  /* Borders & Dividers */
-  --border-subtle: #D4D5CC;          /* Sage Grey */
-  --border-medium: #C4C5BA;          /* Sophisticated Sage */
-  --border-light: #E4E5DF;           /* Subtle table separators */
+  --border-subtle: #D4D5CC;
+  --border-medium: #C4C5BA;
+  --border-light: #E4E5DF;
   --border-dark: #70736A;
-
-  /* Primary Action Accents */
-  --primary-moss: #595F39;           /* Muted Moss: Primary Buttons & States */
+  --primary-moss: #595F39;
   --primary-moss-hover: #484E2E;
-  --primary-lime: #8CB843;           /* Active Nav & Metric Highlights */
+  --primary-lime: #8CB843;
   --primary-lime-hover: #7EA638;
-  --primary-periwinkle: #7E8CE0;     /* Soft Lavender / Periwinkle Chart Accent */
-
-  /* Semantic Status Colors (Soft Pastel Badges) */
+  --primary-periwinkle: #7E8CE0;
   --status-green-bg: #DDEBD3;
   --status-green-text: #28541E;
   --status-green-solid: #568F3F;
@@ -50,8 +36,6 @@
   --status-lavender-bg: #E4E5F5;
   --status-lavender-text: #3D4492;
   --status-lavender-solid: #7E8CE0;
-
-  /* Backward Compatibility Aliases for Components */
   --primary-50: #F3F5EB;
   --primary-100: #E6EAD6;
   --primary-200: #C9D5AA;
@@ -79,8 +63,6 @@
   --info-border: #CFD3ED;
   --info-text: #3D4492;
   --info-solid: #7E8CE0;
-
-  /* Sidebar Tokens */
   --sidebar-bg: #E4E4DE;
   --sidebar-border: #D4D5CC;
   --sidebar-text: #1B1B1B;
@@ -88,32 +70,22 @@
   --sidebar-active-bg: #8CB843;
   --sidebar-active-text: #1B1B1B;
   --sidebar-hover: #D8DAD0;
-
-  /* Modern Curved Radii */
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 22px;
   --radius-xl: 28px;
   --radius-full: 9999px;
-
-  /* Shadows - Minimal & Soft */
   --shadow-xs: 0 1px 3px rgba(27, 27, 27, 0.04);
   --shadow-sm: 0 2px 8px rgba(27, 27, 27, 0.05);
   --shadow-md: 0 6px 18px rgba(27, 27, 27, 0.06);
   --shadow-lg: 0 12px 28px rgba(27, 27, 27, 0.08);
   --shadow-modal: 0 24px 48px rgba(27, 27, 27, 0.16);
-
-  /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
-
-  /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-/* Base Reset & Layout */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -135,8 +107,6 @@ html, body {
   display: flex;
   flex-direction: column;
 }
-
-/* Typography Hierarchy */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   color: var(--text-main);
@@ -161,8 +131,6 @@ button, input, select, textarea {
   font-family: inherit;
   font-size: inherit;
 }
-
-/* Reusable Card Component */
 .card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -174,8 +142,6 @@ button, input, select, textarea {
 .card:hover {
   border-color: var(--border-medium);
 }
-
-/* Soft Status Badge System */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -218,8 +184,6 @@ button, input, select, textarea {
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
 }
-
-/* Button System: Muted Moss Primary, Ivory Secondary */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -293,8 +257,6 @@ button, input, select, textarea {
   font-size: 1rem;
   border-radius: var(--radius-full);
 }
-
-/* Forms, Inputs and Selects */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -334,8 +296,6 @@ button, input, select, textarea {
   color: var(--status-red-text);
   font-weight: 500;
 }
-
-/* Data Tables with Soft Sage Header */
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -398,8 +358,6 @@ button, input, select, textarea {
 .data-table tbody tr:hover {
   background-color: #F0F0EA;
 }
-
-/* Modals with Clean Ivory Surface */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -466,8 +424,6 @@ button, input, select, textarea {
   border-bottom-left-radius: var(--radius-xl);
   border-bottom-right-radius: var(--radius-xl);
 }
-
-/* Shimmer Loading Skeleton */
 .skeleton {
   background: linear-gradient(90deg, #EAEAEE 25%, #DCDDE3 50%, #EAEAEE 75%);
   background-size: 200% 100%;
@@ -479,8 +435,6 @@ button, input, select, textarea {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-
-/* Toast Container */
 .toast-container {
   position: fixed;
   bottom: 1.5rem;
@@ -517,8 +471,6 @@ button, input, select, textarea {
     transform: translateX(0);
   }
 }
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;

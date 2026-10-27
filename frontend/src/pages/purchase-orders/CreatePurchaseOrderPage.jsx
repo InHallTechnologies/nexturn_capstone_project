@@ -24,7 +24,6 @@ export const CreatePurchaseOrderPage = () => {
   const [products, setProducts] = useState([]);
   const [loadingInitial, setLoadingInitial] = useState(true);
 
-  // Form state
   const [supplierId, setSupplierId] = useState('');
   const [expectedDate, setExpectedDate] = useState('');
   const [items, setItems] = useState([
@@ -69,7 +68,6 @@ export const CreatePurchaseOrderPage = () => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
 
-      // When product is selected, auto-fill unit_cost from catalog cost_price if available
       if (field === 'product_id') {
         const selectedProd = products.find((p) => p.id === Number(value));
         if (selectedProd && selectedProd.cost_price !== undefined) {
@@ -103,7 +101,6 @@ export const CreatePurchaseOrderPage = () => {
       return;
     }
 
-    // Validate lines and check for duplicate products
     const seenProducts = new Set();
     const cleanItems = [];
 
@@ -186,9 +183,7 @@ export const CreatePurchaseOrderPage = () => {
 
       <form onSubmit={handleSubmit}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '1.5rem', alignItems: 'start' }}>
-          {/* Main Order Details & Lines */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {/* Vendor & Dates Card */}
             <div className="card" style={{ padding: '1.5rem' }}>
               <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Truck size={18} style={{ color: 'var(--primary-600)' }} /> Order Specifications
@@ -233,7 +228,6 @@ export const CreatePurchaseOrderPage = () => {
               </div>
             </div>
 
-            {/* Line Items Card */}
             <div className="card" style={{ padding: '1.5rem' }}>
               <div
                 style={{
@@ -350,7 +344,6 @@ export const CreatePurchaseOrderPage = () => {
             </div>
           </div>
 
-          {/* Right Summary Sidebar */}
           <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Order Summary</h3>
 

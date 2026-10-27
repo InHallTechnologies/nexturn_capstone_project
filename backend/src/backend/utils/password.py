@@ -15,5 +15,4 @@ def verify_password(hashed_password, password):
         password_bytes = hashlib.sha256(password.encode("utf-8")).digest()
         return bcrypt.checkpw(password_bytes, hashed_password.encode("utf-8"))
 
-    # Continue accepting existing Werkzeug hashes for accounts created before bcrypt.
     return check_password_hash(hashed_password, password)

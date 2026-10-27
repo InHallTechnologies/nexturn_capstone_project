@@ -11,7 +11,7 @@ export const ConfirmDialog = ({
   message = 'Are you sure you want to proceed? This action cannot be undone.',
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  variant = 'danger', // danger, primary
+  variant = 'danger',
   loading = false,
 }) => {
   return (

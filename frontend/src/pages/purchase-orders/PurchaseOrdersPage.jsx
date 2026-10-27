@@ -17,9 +17,10 @@ import { Badge } from '../../components/common/Badge';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { ErrorAlert } from '../../components/common/ErrorAlert';
 import { formatCurrency } from '../../utils/currency';
+import { prefetchRouteData } from '../../api/prefetch';
 
 export const PurchaseOrdersPage = () => {
-  const { isOwner, canCreatePurchaseOrder } = useAuth();
+  const { isOwner, canCreatePurchaseOrder, role } = useAuth();
   const { showSuccess, showError } = useToast();
   const navigate = useNavigate();
 
@@ -30,15 +31,12 @@ export const PurchaseOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Approve dialog
   const [approvingOrder, setApprovingOrder] = useState(null);
   const [approving, setApproving] = useState(false);
 
-  // Cancel dialog
   const [cancellingOrder, setCancellingOrder] = useState(null);
   const [cancelling, setCancelling] = useState(false);
 
-  // Load suppliers map
   useEffect(() => {
     const fetchSuppliers = async () => {
       try {
@@ -48,12 +46,12 @@ export const PurchaseOrdersPage = () => {
           map[s.id] = s.name;
         });
         setSuppliers(map);
-      } catch {
-        // Suppress
+      } catch (error) {
+        showError(error.response?.data?.error || 'Failed to load suppliers.');
       }
     };
     fetchSuppliers();
-  }, []);
+  }, [showError]);
 
   const loadOrders = useCallback(
     async (page = 1) => {
@@ -201,6 +199,8 @@ export const PurchaseOrdersPage = () => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.35rem' }}>
           <button
             onClick={() => navigate(`/purchase-orders/${order.id}`)}
+            onMouseEnter={() => prefetchRouteData(`/purchase-orders/${order.id}`, role)}
+            onFocus={() => prefetchRouteData(`/purchase-orders/${order.id}`, role)}
             style={{
               background: 'none',
               border: 'none',
@@ -213,7 +213,6 @@ export const PurchaseOrdersPage = () => {
             <Eye size={16} />
           </button>
 
-          {/* Owner-only approval */}
           {order.status === 'draft' && isOwner && (
             <button
               onClick={() => setApprovingOrder(order)}
@@ -230,10 +229,11 @@ export const PurchaseOrdersPage = () => {
             </button>
           )}
 
-          {/* Receive goods action for approved or partial */}
           {(order.status === 'approved' || order.status === 'partially_received') && (
             <button
               onClick={() => navigate(`/receive-goods?po_id=${order.id}`)}
+              onMouseEnter={() => prefetchRouteData(`/receive-goods?po_id=${order.id}`, role)}
+              onFocus={() => prefetchRouteData(`/receive-goods?po_id=${order.id}`, role)}
               style={{
                 background: 'none',
                 border: 'none',
@@ -247,7 +247,6 @@ export const PurchaseOrdersPage = () => {
             </button>
           )}
 
-          {/* Cancel action for draft or approved without receipts */}
           {(order.status === 'draft' || order.status === 'approved') && (
             <button
               onClick={() => setCancellingOrder(order)}
@@ -326,7 +325,6 @@ export const PurchaseOrdersPage = () => {
         onEmptyAction={() => navigate('/purchase-orders/new')}
       />
 
-      {/* Approve Dialog */}
       <ConfirmDialog
         isOpen={Boolean(approvingOrder)}
         onClose={() => setApprovingOrder(null)}
@@ -338,7 +336,6 @@ export const PurchaseOrdersPage = () => {
         loading={approving}
       />
 
-      {/* Cancel Dialog */}
       <ConfirmDialog
         isOpen={Boolean(cancellingOrder)}
         onClose={() => setCancellingOrder(null)}

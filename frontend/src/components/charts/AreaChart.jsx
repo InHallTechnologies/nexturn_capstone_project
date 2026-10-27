@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { formatCompactCurrency, formatCurrency } from '../../utils/currency';
 
 export const AreaChart = ({
-  data = [], // [{ label, value }]
+  data = [],
   height = 240,
   strokeColor = '#2563eb',
   gradientFrom = 'rgba(37, 99, 235, 0.25)',
@@ -65,7 +65,6 @@ export const AreaChart = ({
           </linearGradient>
         </defs>
 
-        {/* Y Grid lines and labels */}
         {yTicks.map((tick, i) => {
           const y = padding.top + chartHeight - (tick / maxValue) * chartHeight;
           return (
@@ -93,15 +92,11 @@ export const AreaChart = ({
           );
         })}
 
-        {/* Filled Area */}
         <path d={areaD} fill="url(#areaGradient)" />
 
-        {/* Stroke Line */}
         <path d={pathD} fill="none" stroke={strokeColor} strokeWidth="2.5" strokeLinecap="round" />
 
-        {/* Data points & X Labels */}
         {points.map((p, i) => {
-          // Show reduced labels to avoid clutter
           const showLabel = data.length <= 8 || i % Math.ceil(data.length / 6) === 0 || i === data.length - 1;
           const isHovered = hoveredPoint?.index === i;
 
@@ -119,7 +114,6 @@ export const AreaChart = ({
                   {p.label}
                 </text>
               )}
-              {/* Invisible larger hit target for smooth hover */}
               <circle
                 cx={p.x}
                 cy={p.y}
@@ -129,7 +123,6 @@ export const AreaChart = ({
                 onMouseEnter={() => setHoveredPoint({ ...p, index: i })}
                 onMouseLeave={() => setHoveredPoint(null)}
               />
-              {/* Visible dot on hover */}
               {isHovered && (
                 <circle
                   cx={p.x}
@@ -145,7 +138,6 @@ export const AreaChart = ({
         })}
       </svg>
 
-      {/* Floating Tooltip */}
       {hoveredPoint && (
         <div
           style={{

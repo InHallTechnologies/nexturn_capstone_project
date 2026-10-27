@@ -17,6 +17,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { Badge } from '../common/Badge';
+import { prefetchRouteData } from '../../api/prefetch';
 
 export const Sidebar = ({
   collapsed = false,
@@ -38,7 +39,6 @@ export const Sidebar = ({
     navigate('/login');
   };
 
-  // Nav item groups based on roles
   const navItems = [
     {
       section: 'Main',
@@ -87,7 +87,6 @@ export const Sidebar = ({
   return (
     <>
       <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-        {/* Brand Header with Target Logo */}
         <div className="sidebar-header">
           <div className="sidebar-brand">
             <div className="sidebar-brand-icon" aria-hidden="true" />
@@ -108,7 +107,6 @@ export const Sidebar = ({
           )}
         </div>
 
-        {/* Navigation Items */}
         <nav className="sidebar-nav">
           {navItems.map((group) => {
             const visibleItems = group.items.filter((item) => item.show);
@@ -123,6 +121,8 @@ export const Sidebar = ({
                     to={item.path}
                     className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                     title={item.label}
+                    onMouseEnter={() => prefetchRouteData(item.path, user?.role)}
+                    onFocus={() => prefetchRouteData(item.path, user?.role)}
                   >
                     <item.icon className="nav-item-icon" />
                     {!collapsed && <span>{item.label}</span>}
@@ -133,7 +133,6 @@ export const Sidebar = ({
           })}
         </nav>
 
-        {/* Sidebar Footer with Operator Info & Logout */}
         <div className="sidebar-footer">
           {!collapsed ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>

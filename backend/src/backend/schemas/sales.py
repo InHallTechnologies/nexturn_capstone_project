@@ -41,7 +41,6 @@ def validate_sale_item(data):
         raise ValueError("Quantity must be greater than zero")
     parsed_quantity = int(parsed_quantity)
 
-    # Validate sale price
     try:
         price_at_sale = Decimal(str(price_at_sale))
     except (ValueError, TypeError, InvalidOperation):
