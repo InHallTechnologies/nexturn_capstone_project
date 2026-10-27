@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from decimal import Decimal, ROUND_HALF_UP
 from flask import request
 from flask_jwt_extended import get_jwt, get_jwt_identity, jwt_required
@@ -48,7 +48,6 @@ def role_required(*roles):
             if user["role"] not in roles:
                 return error("You do not have access to this resource", 403)
             return function(*args, **kwargs)
-
         authorize.__name__ = function.__name__
         authorize.__doc__ = function.__doc__
         return authorize
@@ -135,6 +134,6 @@ def add_review_event(project_id, actor_id, event_type, message=""):
             "actor_id": actor_id,
             "event_type": event_type,
             "message": message,
-            "created_at": datetime.utcnow(),
+            "created_at": datetime.now(timezone.utc),
         },
     )
