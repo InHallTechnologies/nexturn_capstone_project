@@ -1,0 +1,102 @@
+# 🏠 Rental Property Management System
+
+A full-stack web application that allows property owners to list rental properties and helps users search, explore, and enquire about available properties.
+
+## 🚀 Tech Stack
+
+**Frontend:** React.js, Vite, JavaScript, CSS
+**Backend:** Python, Flask, SQLAlchemy
+**Database:** PostgreSQL
+**Authentication:** JWT, Bcrypt, Redis
+**Containerization:** Docker, Docker Compose
+
+## ✨ Features
+
+* User registration and login (Owner / Seeker)
+* JWT authentication using HTTP cookies
+* Secure password hashing using Bcrypt
+* Property listing, updating, and deletion
+* Property search and filtering
+* Property images and amenities
+* Add and remove favorite properties
+* Property enquiries and messaging
+* Property reviews
+* Admin property verification
+* JWT token revocation using Redis
+
+## 📂 Project Structure
+
+```text
+capstone_project/
+│
+├── frontend/           # React + Vite
+├── backend/            # Flask REST APIs
+├── docker-compose.yml  # Docker services
+├── .env                # Environment variables
+└── README.md
+```
+
+## ⚙️ Installation & Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd capstone_project
+```
+
+### 2. Configure Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+POSTGRES_PASSWORD=your_database_password
+JWT_SECRET_KEY=your_secret_key
+```
+
+### 3. Run Using Docker
+
+Make sure Docker Desktop is running.
+
+```bash
+docker compose up --build -d
+```
+
+### 4. Access the Application
+
+**Frontend:** http://localhost:3000
+**Backend:** http://localhost:5000
+
+### 5. Stop the Application
+
+```bash
+docker compose down
+```
+
+## 🔐 Authentication Flow
+
+1. **Register:** User details are validated, and the password is hashed using Bcrypt before storing it in PostgreSQL.
+2. **Login:** Credentials are verified, and JWT access and refresh tokens are generated.
+3. **Cookies:** JWT tokens are stored in browser cookies for authentication.
+4. **Refresh:** A valid refresh token can generate a new access token.
+5. **Logout:** The access token's JTI is stored in Redis to revoke it, and authentication cookies are cleared.
+
+## 📡 Authentication APIs
+
+| Method | Endpoint          | Description          |
+| ------ | ----------------- | -------------------- |
+| POST   | `/auth/register/` | Register user        |
+| POST   | `/auth/login`     | Login user           |
+| GET    | `/auth/me`        | Get current user     |
+| POST   | `/auth/refresh`   | Refresh access token |
+| DELETE | `/auth/logout`    | Logout user          |
+
+## 👥 Team
+
+**Group 8 — Property Rental & Listing Portal**
+
+Developed as a team capstone project using React, Flask, PostgreSQL, and Docker.
+
+---
+
+**⭐ Rental Property Management System | Full Stack Capstone Project**
