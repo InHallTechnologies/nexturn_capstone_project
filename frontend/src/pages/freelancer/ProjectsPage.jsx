@@ -88,6 +88,7 @@ function ProjectDialog({ project, onClose, onSaved }) {
 
 function SubmissionDialog({ project, onClose, onSaved }) {
   const [notes, setNotes] = useState("");
+  const [gitLink, setGitLink] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -97,7 +98,7 @@ function SubmissionDialog({ project, onClose, onSaved }) {
     setMessage("");
 
     try {
-      await api.post(`/projects/${project.id}/submit`, { notes });
+      await api.post(`/projects/${project.id}/submit`, { notes, git_link: gitLink });
       onSaved("Completed work sent to the client for review.");
       onClose();
     } catch (error) {
@@ -140,6 +141,16 @@ function SubmissionDialog({ project, onClose, onSaved }) {
               placeholder="Describe the completed work and handoff details."
             />
           </label>
+          <label>
+            Git repository link
+            <input
+              type="url"
+              required
+              value={gitLink}
+              onChange={(event) => setGitLink(event.target.value)}
+              placeholder="https://github.com/you/project"
+            />
+          </label>
           <button className="button button-dark" disabled={busy}>
             {busy ? "Submitting…" : "Send to client for review"}
           </button>
@@ -151,7 +162,7 @@ function SubmissionDialog({ project, onClose, onSaved }) {
 
 export default function ProjectsPage() {
   const clients = useLoad("/clients?per_page=100");
-  const projects = useLoad("/projects?per_page=100&sort=title");
+  const projects = useLoad("/projects?per_page=100&sort=claimed_at&order=desc");
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(null);
   const [message, setMessage] = useState("");
