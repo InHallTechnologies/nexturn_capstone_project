@@ -1,10 +1,3 @@
-"""End-to-end smoke test for every public API route in this project.
-
-Start the app first with docker compose up --build, then run:
-  python tests/smoke_routes.py
-Optionally set API_BASE_URL (default http://localhost:5000/api).
-The script creates its own records and leaves them in the local demo database.
-"""
 import json
 import os
 import sys
@@ -127,12 +120,12 @@ def main():
     second_work=call("POST","/time-entries",{"project_id":claimed_project_id,"date":"2026-01-05","hours":1,"description":"Second delivered scope"},token=access,expected=201)
     assert second_work["rate_applied"]==150
     assert call("GET","/portal/projects",token=pt,expected=200)["items"]
-    submitted=call("POST",f"/projects/{claimed_project_id}/submit",{"notes":"Implemented the agreed booking flow and handed over the files."},token=access,expected=200)
+    submitted=call("POST",f"/projects/{claimed_project_id}/submit",{"notes":"Implemented the agreed booking flow and handed over the files.","git_link":"https://github.com/example/booking-flow"},token=access,expected=200)
     assert submitted["workflow_status"]=="submitted"
     call("POST",f"/portal/projects/{claimed_project_id}/review",{"action":"request_revision"},token=pt,expected=400)
     revision=call("POST",f"/portal/projects/{claimed_project_id}/review",{"action":"request_revision","feedback":"Please adjust the mobile booking confirmation."},token=pt,expected=200)
     assert revision["workflow_status"]=="revision_requested" and revision["revision_feedback"]
-    resubmitted=call("POST",f"/projects/{claimed_project_id}/submit",{"notes":"Updated the mobile confirmation and retested."},token=access,expected=200)
+    resubmitted=call("POST",f"/projects/{claimed_project_id}/submit",{"notes":"Updated the mobile confirmation and retested.","git_link":"https://github.com/example/booking-flow"},token=access,expected=200)
     assert resubmitted["workflow_status"]=="submitted"
     approved=call("POST",f"/portal/projects/{claimed_project_id}/review",{"action":"approve","feedback":"Looks good."},token=pt,expected=200)
     assert approved["workflow_status"]=="completed"
