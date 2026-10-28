@@ -77,6 +77,13 @@ export default function WorkReviewPage() {
                   The freelancer has not submitted completion notes yet.
                 </p>
               )}
+              {project.git_link && (
+                <p>
+                  <a href={project.git_link} target="_blank" rel="noreferrer">
+                    Open Git repository ↗
+                  </a>
+                </p>
+              )}
               {project.revision_feedback && (
                 <div className="review-feedback">
                   Revision requested: {project.revision_feedback}
