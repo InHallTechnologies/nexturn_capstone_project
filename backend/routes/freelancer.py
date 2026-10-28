@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity
 from common import (
@@ -24,7 +24,6 @@ def invoice_items_for_owner(owner_id):
     client_ids = [item["id"] for item in collection("clients").find({"owner_id": {"$in": identifier_values(owner_id)}})]
     return list(collection("invoices").find({"client_id": {"$in": client_ids}}))
 def close_project_if_fully_paid(project_id):
-    """Close a completed project only after every project invoice is settled."""
     if not project_id:
         return
     project = get("projects", project_id)
@@ -111,6 +110,8 @@ def projects():
                 "status": status,
                 "workflow_status": "active",
                 "completion_notes": None,
+                "git_link": None,
+                "claimed_at": datetime.now(timezone.utc),
                 "revision_feedback": None,
                 "submitted_at": None,
                 "reviewed_at": None,
@@ -121,7 +122,7 @@ def projects():
     items = list(collection("projects").find({"client_id": {"$in": client_ids}}))
     if request.args.get("client_id"):
         items = [item for item in items if item["client_id"] == request.args["client_id"]]
-    result, problem = page_from_request(items, {"id", "title", "status", "workflow_status"})
+    result, problem = page_from_request(items, {"id", "title", "status", "workflow_status", "claimed_at"})
     if problem:
         return problem
     result["items"] = [project_workflow_payload(get("projects", item["id"])) for item in result["items"]]
@@ -170,9 +171,15 @@ def submit_project(project_id):
         return error("Completion notes are required", 400)
     if len(notes) > 5000:
         return error("Completion notes cannot exceed 5000 characters", 400)
+    git_link = str(data.get("git_link", "")).strip()
+    if not git_link or not git_link.startswith(("https://", "http://")):
+        return error("A valid Git repository link is required", 400)
+    if len(git_link) > 500:
+        return error("Git repository link cannot exceed 500 characters", 400)
     changes = {
         "workflow_status": "submitted",
         "completion_notes": notes,
+        "git_link": git_link,
         "revision_feedback": None,
         "submitted_at": date.today().isoformat(),
     }
@@ -557,6 +564,6 @@ def claim_project_post():
     client = collection("clients").find_one({"owner_id": freelancer["id"], "email": client_user["email"]})
     if not client:
         client = insert("clients", {"owner_id": freelancer["id"], "name": client_user.get("business_name") or client_user["email"], "email": client_user["email"], "billing_address": "", "default_hourly_rate": 0})
-    project = insert("projects", {"client_id": client["id"], "title": post["title"], "rate_override": post["hourly_rate"], "status": "active", "workflow_status": "active", "completion_notes": None, "revision_feedback": None, "submitted_at": None, "reviewed_at": None})
+    project = insert("projects", {"client_id": client["id"], "title": post["title"], "rate_override": post["hourly_rate"], "status": "active", "workflow_status": "active", "completion_notes": None, "git_link": None, "claimed_at": datetime.now(timezone.utc), "revision_feedback": None, "submitted_at": None, "reviewed_at": None})
     update("project_post_codes", access["id"], {"project_id": project["id"]})
     return {"message": "Project and client added to your workspace", "client": output(client), "project": output(project), "project_post_id": post["id"]}, 201
