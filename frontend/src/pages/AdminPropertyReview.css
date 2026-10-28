@@ -1,0 +1,269 @@
+/* Main Page */
+.admin-review-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 24px;
+  color: #1f2937;
+  min-height: 100vh;
+  background: #f9fafb;
+}
+
+.admin-review-back-link {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.admin-review-back-link:hover {
+  text-decoration: underline;
+}
+
+/* Header */
+.admin-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 25px;
+}
+
+.admin-review-header h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  color: #111827;
+}
+
+.admin-review-header p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+/* Status */
+.review-status {
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-verified {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Information Cards */
+.admin-review-card {
+  margin-bottom: 24px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.admin-review-card h2 {
+  margin: 0 0 22px;
+  font-size: 21px;
+  color: #111827;
+}
+
+/* Property and Owner Details */
+.admin-review-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.admin-review-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.admin-review-detail span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.admin-review-detail strong {
+  color: #111827;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+/* Previous Rejection Reason */
+.admin-rejection-reason {
+  margin-top: 24px;
+  padding: 15px;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+/* Property Images */
+.admin-review-images {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-review-image-link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  color: #2563eb;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.admin-review-image-link img {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f3f4f6;
+}
+
+.admin-review-image-link:hover span {
+  text-decoration: underline;
+}
+
+/* Amenities */
+.admin-review-amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-review-amenities span {
+  padding: 9px 12px;
+  border-radius: 7px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 14px;
+}
+
+/* Approve and Reject Section */
+.admin-decision-card > p {
+  margin-bottom: 20px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.admin-decision-card form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.admin-decision-card label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.admin-decision-card textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid #d1d5db;
+  border-radius: 7px;
+  font: inherit;
+  resize: vertical;
+}
+
+.admin-decision-card textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.admin-review-page .approve-button,
+.admin-review-page .reject-button {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 7px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-review-page .approve-button {
+  background: #16a34a;
+}
+
+.admin-review-page .approve-button:hover {
+  background: #15803d;
+}
+
+.admin-review-page .reject-button {
+  background: #dc2626;
+}
+
+.admin-review-page .reject-button:hover {
+  background: #b91c1c;
+}
+
+.admin-review-page button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 800px) {
+  .admin-review-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-review-images {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-review-page {
+    padding: 20px 14px;
+  }
+
+  .admin-review-card {
+    padding: 17px;
+  }
+
+  .admin-review-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-review-header h1 {
+    font-size: 25px;
+  }
+
+  .admin-review-grid,
+  .admin-review-images {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-review-image-link img {
+    height: 230px;
+  }
+}
