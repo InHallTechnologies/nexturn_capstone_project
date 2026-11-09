@@ -1,0 +1,7 @@
+FROM python:3.15.0-trixie
+WORKDIR /app
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+COPY . .
+RUN uv sync
+EXPOSE 5000
+CMD ["uv", "run", "backend"]
